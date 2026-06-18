@@ -149,3 +149,16 @@ class SQLiteGoalStore:
         cursor = connection.execute("DELETE FROM goals WHERE id = ?", (goal_id,))
         connection.commit()
         return cursor.rowcount > 0
+
+    def link_priority_to_goal(self, priority_id: str, goal_id: str) -> None:
+        """Align a priority with a goal, replacing any existing alignment.
+
+        A priority belongs to at most one goal, so re-linking it moves it to the
+        new goal rather than creating a second alignment.
+        """
+        connection = self._require_connection()
+        connection.execute(
+            "INSERT OR REPLACE INTO goal_priorities (priority_id, goal_id) VALUES (?, ?)",
+            (priority_id, goal_id),
+        )
+        connection.commit()
