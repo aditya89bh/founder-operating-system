@@ -35,11 +35,15 @@ The package is split into focused modules with clear responsibilities:
 - `founder_os.memory` — the memory engine: a storage protocol and its
   SQLite-backed implementation (added in Phase 2). See
   [memory_engine.md](memory_engine.md).
+- `founder_os.decisions` — the decision engine: a storage protocol and its
+  SQLite-backed implementation with outcome tracking (added in Phase 3). See
+  [decision_engine.md](decision_engine.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
-Dependencies flow in one direction. `cli` depends on `version`, `models`, and
-`memory`; `memory` depends on `models`; `models` is standalone. Outside of the
-memory engine's SQLite storage, the package does not depend on external services.
+Dependencies flow in one direction. `cli` depends on `version`, `models`,
+`memory`, and `decisions`; the `memory` and `decisions` engines depend on
+`models`; `models` is standalone. Outside of the engines' SQLite storage, the
+package does not depend on external services.
 
 ## Design principles
 

@@ -83,9 +83,7 @@ def test_new_decision_starts_pending(store: SQLiteDecisionStore) -> None:
 
 
 def test_update_outcome_records_result_and_review(store: SQLiteDecisionStore) -> None:
-    record = store.create_decision(
-        DecisionRecord(title="Launch beta", decision="Ship to 50 users")
-    )
+    record = store.create_decision(DecisionRecord(title="Launch beta", decision="Ship to 50 users"))
 
     updated = store.update_outcome(
         record.id,

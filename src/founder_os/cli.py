@@ -172,15 +172,11 @@ app.add_typer(decision_app, name="decision")
 @decision_app.command("create")
 def decision_create(
     title: Annotated[str, typer.Argument(help="Short title for the decision.")],
-    decision_text: Annotated[
-        str, typer.Option("--decision", help="The decision that was made.")
-    ],
+    decision_text: Annotated[str, typer.Option("--decision", help="The decision that was made.")],
     context: Annotated[
         str, typer.Option("--context", help="The situation prompting the decision.")
     ] = "",
-    rationale: Annotated[
-        str, typer.Option("--rationale", help="Why this decision was made.")
-    ] = "",
+    rationale: Annotated[str, typer.Option("--rationale", help="Why this decision was made.")] = "",
     assumptions: Annotated[
         str, typer.Option("--assumptions", help="Key assumptions behind the decision.")
     ] = "",
