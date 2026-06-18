@@ -15,6 +15,7 @@ from founder_os.models import (
     GoalRecord,
     GoalStatus,
     GoalTimeframe,
+    MemoryRecord,
     PriorityRecord,
     PriorityStatus,
     ProjectRecord,
@@ -187,5 +188,35 @@ def demo_decisions() -> list[DecisionRecord]:
             outcome=DecisionOutcome.MIXED,
             outcome_notes="Simpler to ship, but some users wanted sync.",
             review_date=date(2026, 6, 1),
+        ),
+    ]
+
+
+def demo_memories() -> list[MemoryRecord]:
+    """Return the demo memories: feedback, lessons, and launch observations."""
+    return [
+        MemoryRecord(
+            content="User feedback: onboarding felt confusing on first run.",
+            tags=["feedback", "onboarding"],
+        ),
+        MemoryRecord(
+            content="Product lesson: shipping smaller increments built momentum.",
+            tags=["lessons", "product"],
+        ),
+        MemoryRecord(
+            content="Launch observation: clear docs drove most early signups.",
+            tags=["launch", "docs"],
+        ),
+        MemoryRecord(
+            content="Investor call: focus the story on the operating loop.",
+            tags=["fundraising"],
+        ),
+        MemoryRecord(
+            content="Engineering note: timezone handling caused a subtle bug.",
+            tags=["engineering", "lessons"],
+        ),
+        MemoryRecord(
+            content="Support theme: founders want an at-a-glance status view.",
+            tags=["feedback", "product"],
         ),
     ]
