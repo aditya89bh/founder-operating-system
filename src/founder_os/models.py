@@ -8,6 +8,7 @@ workflow logic live outside of Phase 1.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from enum import Enum
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -55,4 +56,24 @@ class PriorityRecord(BaseModel):
     id: str = Field(default_factory=_new_id)
     title: str = Field(min_length=1, max_length=200)
     rank: int = Field(ge=1)
+    created_at: datetime = Field(default_factory=_utc_now)
+
+
+class GoalStatus(str, Enum):
+    """Lifecycle states for a goal."""
+
+    ACTIVE = "active"
+    ACHIEVED = "achieved"
+    ABANDONED = "abandoned"
+
+
+class GoalRecord(BaseModel):
+    """A goal the founder is working toward over a meaningful horizon."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(default_factory=_new_id)
+    title: str = Field(min_length=1, max_length=200)
+    description: str = Field(default="", max_length=10_000)
+    status: GoalStatus = GoalStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
