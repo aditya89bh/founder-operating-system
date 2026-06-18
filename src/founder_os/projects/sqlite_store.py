@@ -119,3 +119,10 @@ class SQLiteProjectStore:
             """
         )
         return [self._row_to_project(row) for row in cursor.fetchall()]
+
+    def delete_project(self, project_id: str) -> bool:
+        """Delete the project with ``project_id``; return ``True`` if a row was removed."""
+        connection = self._require_connection()
+        cursor = connection.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+        connection.commit()
+        return cursor.rowcount > 0
