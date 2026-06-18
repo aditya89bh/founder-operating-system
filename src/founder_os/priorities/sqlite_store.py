@@ -126,3 +126,10 @@ class SQLitePriorityStore:
             """
         )
         return [self._row_to_priority(row) for row in cursor.fetchall()]
+
+    def delete_priority(self, priority_id: str) -> bool:
+        """Delete the priority with ``priority_id``; return ``True`` if a row was removed."""
+        connection = self._require_connection()
+        cursor = connection.execute("DELETE FROM priorities WHERE id = ?", (priority_id,))
+        connection.commit()
+        return cursor.rowcount > 0
