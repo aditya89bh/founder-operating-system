@@ -162,3 +162,16 @@ class SQLiteGoalStore:
             (priority_id, goal_id),
         )
         connection.commit()
+
+    def get_goal_priorities(self, goal_id: str) -> list[str]:
+        """Return the identifiers of priorities aligned with ``goal_id``.
+
+        The goal engine stores only the alignment; callers can resolve the
+        identifiers against the priority engine when they need full records.
+        """
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT priority_id FROM goal_priorities WHERE goal_id = ? ORDER BY priority_id",
+            (goal_id,),
+        )
+        return [row["priority_id"] for row in cursor.fetchall()]
