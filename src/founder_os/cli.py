@@ -99,3 +99,26 @@ def memory_list(
         return
     for record in records:
         typer.echo(_format_memory(record))
+
+
+@memory_app.command("search")
+def memory_search(
+    query: Annotated[str, typer.Argument(help="Keyword to search for in memory content.")],
+    tag: Annotated[
+        str | None, typer.Option("--tag", "-t", help="Restrict the search to this tag.")
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DB_PATH,
+) -> None:
+    """Search memories by keyword, newest first."""
+    store = _open_store(database)
+    try:
+        records = store.search_memories(query, tag=tag)
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No memories found.")
+        return
+    for record in records:
+        typer.echo(_format_memory(record))
