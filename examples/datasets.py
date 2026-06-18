@@ -13,6 +13,8 @@ from founder_os.models import (
     GoalRecord,
     GoalStatus,
     GoalTimeframe,
+    PriorityRecord,
+    PriorityStatus,
     ProjectRecord,
     ProjectStatus,
 )
@@ -81,5 +83,56 @@ def demo_projects() -> list[ProjectRecord]:
             status=ProjectStatus.COMPLETED,
             start_date=date(2026, 1, 1),
             target_date=date(2026, 2, 1),
+        ),
+    ]
+
+
+def demo_priorities() -> list[PriorityRecord]:
+    """Return the demo priorities with deterministic urgency, importance, effort."""
+    return [
+        PriorityRecord(
+            title="Finish review engine",
+            description="Complete the review subsystem so reviews can be captured.",
+            category="engineering",
+            urgency=5,
+            importance=5,
+            effort=2,
+            status=PriorityStatus.ACTIVE,
+        ),
+        PriorityRecord(
+            title="Improve onboarding",
+            description="Reduce friction in the first-run experience.",
+            category="product",
+            urgency=4,
+            importance=5,
+            effort=3,
+            status=PriorityStatus.ACTIVE,
+        ),
+        PriorityRecord(
+            title="Create examples",
+            description="Write realistic scenarios and a demo dataset.",
+            category="docs",
+            urgency=3,
+            importance=4,
+            effort=2,
+            status=PriorityStatus.ACTIVE,
+        ),
+        PriorityRecord(
+            title="Refactor logging",
+            description="Tidy logging that is not blocking the launch.",
+            category="engineering",
+            urgency=2,
+            importance=2,
+            effort=4,
+            status=PriorityStatus.DROPPED,
+        ),
+        PriorityRecord(
+            title="Write launch post",
+            description="Draft and publish the launch announcement.",
+            category="marketing",
+            urgency=4,
+            importance=3,
+            effort=2,
+            status=PriorityStatus.COMPLETED,
         ),
     ]
