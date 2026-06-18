@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from types import TracebackType
 
-from founder_os.models import PriorityRecord
+from founder_os.models import PriorityRecord, PriorityStatus
 
 _CREATE_PRIORITIES_TABLE = """
 CREATE TABLE IF NOT EXISTS priorities (
@@ -145,3 +145,12 @@ class SQLitePriorityStore:
         cursor = connection.execute("DELETE FROM priorities WHERE id = ?", (priority_id,))
         connection.commit()
         return cursor.rowcount > 0
+
+    def rank_priorities(self) -> list[PriorityRecord]:
+        """Return active priorities ordered by deterministic score, highest first.
+
+        Ties keep the underlying newest-first ordering, so ranking is fully
+        deterministic for a given set of stored priorities.
+        """
+        active = [p for p in self.list_priorities() if p.status is PriorityStatus.ACTIVE]
+        return sorted(active, key=lambda priority: priority.score, reverse=True)
