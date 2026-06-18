@@ -26,6 +26,11 @@ CREATE TABLE IF NOT EXISTS memory_tags (
 """
 
 
+def _escape_like(term: str) -> str:
+    """Escape SQL ``LIKE`` wildcards so a search term is matched literally."""
+    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create the memory engine tables on ``connection`` if they do not exist."""
     connection.execute(_CREATE_MEMORIES_TABLE)
@@ -137,6 +142,33 @@ class SQLiteMemoryStore:
                 ORDER BY m.created_at DESC, m.id
                 """,
                 (tag,),
+            )
+        return [self._row_to_memory(row) for row in cursor.fetchall()]
+
+    def search_memories(self, query: str, *, tag: str | None = None) -> list[MemoryRecord]:
+        """Return memories whose content matches ``query``, optionally filtered by ``tag``."""
+        connection = self._require_connection()
+        pattern = f"%{_escape_like(query)}%"
+        if tag is None:
+            cursor = connection.execute(
+                """
+                SELECT id, content, created_at
+                FROM memories
+                WHERE content LIKE ? ESCAPE '\\'
+                ORDER BY created_at DESC, id
+                """,
+                (pattern,),
+            )
+        else:
+            cursor = connection.execute(
+                """
+                SELECT m.id, m.content, m.created_at
+                FROM memories AS m
+                JOIN memory_tags AS t ON t.memory_id = m.id
+                WHERE m.content LIKE ? ESCAPE '\\' AND t.tag = ?
+                ORDER BY m.created_at DESC, m.id
+                """,
+                (pattern, tag),
             )
         return [self._row_to_memory(row) for row in cursor.fetchall()]
 
