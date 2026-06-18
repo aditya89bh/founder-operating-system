@@ -199,14 +199,14 @@ tour of the dataset, scenarios, and matching CLI workflows.
 Requires Python 3.11 or newer.
 
 ```bash
-git clone https://github.com/adityabhatia/founder-operating-system.git
+git clone https://github.com/aditya89bh/founder-operating-system.git
 cd founder-operating-system
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-## Quickstart
+## CLI command reference
 
 Check the installed version through the CLI:
 
@@ -461,6 +461,22 @@ The output matches [examples/sample_report.md](examples/sample_report.md). See
   demo dataset and five end-to-end founder scenarios in the `examples/` package,
   with a walkthrough, matching CLI workflows, and a sample report.
 - **Future phases.** Dashboards and analytics. These remain out of scope for now.
+
+## Documentation
+
+- [Architecture](docs/architecture.md) — module boundaries and design principles.
+- [Examples and scenarios](docs/examples.md) — the demo dataset and five scenarios.
+- [Project metrics](docs/metrics.md) — verifiable counts at v1.0.0.
+- [Results](RESULTS.md) — a summary of the system at v1.0.0.
+- [Changelog](CHANGELOG.md) — release history.
+- [Release notes](docs/releases/v1.0.0.md) — the v1.0.0 release.
+- Per-engine guides: [memory](docs/memory_engine.md),
+  [decision](docs/decision_engine.md), [priority](docs/priority_engine.md),
+  [goal](docs/goal_engine.md), [project](docs/project_engine.md),
+  [review](docs/review_engine.md), and the integration layer
+  ([operating loop](docs/founder_operating_loop.md),
+  [historical insights](docs/historical_insights.md),
+  [founder reports](docs/founder_reports.md)).
 
 ## License
 
