@@ -21,6 +21,7 @@ def _open_store(database: Path) -> SQLiteMemoryStore:
     store.connect()
     return store
 
+
 app = typer.Typer(
     name="founder-os",
     help="Founder Operating System command-line interface.",

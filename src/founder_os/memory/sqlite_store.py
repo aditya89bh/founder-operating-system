@@ -89,9 +89,7 @@ class SQLiteMemoryStore:
         connection.commit()
         return memory
 
-    def _store_tags(
-        self, connection: sqlite3.Connection, memory_id: str, tags: list[str]
-    ) -> None:
+    def _store_tags(self, connection: sqlite3.Connection, memory_id: str, tags: list[str]) -> None:
         connection.executemany(
             "INSERT OR IGNORE INTO memory_tags (memory_id, tag) VALUES (?, ?)",
             [(memory_id, tag) for tag in tags],

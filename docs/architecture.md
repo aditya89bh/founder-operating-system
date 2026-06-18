@@ -32,11 +32,14 @@ The package is split into focused modules with clear responsibilities:
 
 - `founder_os.version` — single source of truth for the package version.
 - `founder_os.models` — the typed domain models and their validation rules.
+- `founder_os.memory` — the memory engine: a storage protocol and its
+  SQLite-backed implementation (added in Phase 2). See
+  [memory_engine.md](memory_engine.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
-Dependencies flow in one direction. `cli` depends on `version`; `models` is
-standalone. Nothing in the package depends on I/O, a database, or external
-services in Phase 1.
+Dependencies flow in one direction. `cli` depends on `version`, `models`, and
+`memory`; `memory` depends on `models`; `models` is standalone. Outside of the
+memory engine's SQLite storage, the package does not depend on external services.
 
 ## Design principles
 
