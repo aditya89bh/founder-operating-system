@@ -21,9 +21,12 @@ from founder_os.models import (
     PriorityRecord,
     ProjectRecord,
     ProjectStatus,
+    ReviewRecord,
+    ReviewType,
 )
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
+from founder_os.reviews.snapshot import generate_snapshot
 from founder_os.reviews.sqlite_store import SQLiteReviewStore
 from founder_os.version import __version__
 
@@ -609,3 +612,80 @@ def review() -> None:
 
 
 app.add_typer(review_app, name="review")
+
+
+@review_app.command("create")
+def review_create(
+    review_type: Annotated[
+        ReviewType, typer.Option("--type", help="The review cadence.")
+    ] = ReviewType.WEEKLY,
+    notes: Annotated[str, typer.Option("--notes", help="Reflections for this review.")] = "",
+    review_date: Annotated[
+        str | None, typer.Option("--date", help="Review date in YYYY-MM-DD format.")
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the review SQLite database.")
+    ] = DEFAULT_REVIEW_DB_PATH,
+    goal_db: Annotated[
+        Path, typer.Option("--goal-db", help="Path to the goal database.")
+    ] = DEFAULT_GOAL_DB_PATH,
+    project_db: Annotated[
+        Path, typer.Option("--project-db", help="Path to the project database.")
+    ] = DEFAULT_PROJECT_DB_PATH,
+    priority_db: Annotated[
+        Path, typer.Option("--priority-db", help="Path to the priority database.")
+    ] = DEFAULT_PRIORITY_DB_PATH,
+    decision_db: Annotated[
+        Path, typer.Option("--decision-db", help="Path to the decision database.")
+    ] = DEFAULT_DECISION_DB_PATH,
+    memory_db: Annotated[
+        Path, typer.Option("--memory-db", help="Path to the memory database.")
+    ] = DEFAULT_DB_PATH,
+) -> None:
+    """Capture a review with a point-in-time snapshot of every engine."""
+    if review_date is None:
+        parsed_date = date.today()
+    else:
+        try:
+            parsed_date = date.fromisoformat(review_date)
+        except ValueError as exc:
+            raise typer.BadParameter("Review date must be in YYYY-MM-DD format.") from exc
+    goal_store = _open_goal_store(goal_db)
+    project_store = _open_project_store(project_db)
+    priority_store = _open_priority_store(priority_db)
+    decision_store = _open_decision_store(decision_db)
+    memory_store = _open_store(memory_db)
+    try:
+        snapshot = generate_snapshot(
+            goal_store=goal_store,
+            project_store=project_store,
+            priority_store=priority_store,
+            decision_store=decision_store,
+            memory_store=memory_store,
+        )
+    finally:
+        goal_store.close()
+        project_store.close()
+        priority_store.close()
+        decision_store.close()
+        memory_store.close()
+    review_store = _open_review_store(database)
+    try:
+        record = review_store.create_review(
+            ReviewRecord(
+                review_date=parsed_date,
+                review_type=review_type,
+                notes=notes,
+                active_goals=snapshot.active_goals,
+                completed_goals=snapshot.completed_goals,
+                active_projects=snapshot.active_projects,
+                completed_projects=snapshot.completed_projects,
+                active_priorities=snapshot.active_priorities,
+                completed_priorities=snapshot.completed_priorities,
+                decision_count=snapshot.decision_count,
+                memory_count=snapshot.memory_count,
+            )
+        )
+    finally:
+        review_store.close()
+    typer.echo(record.id)
