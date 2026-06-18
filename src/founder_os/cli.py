@@ -30,6 +30,7 @@ from founder_os.operating_loop.report import render_status_report
 from founder_os.operating_loop.service import build_founder_snapshot
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
+from founder_os.reporting.json_export import render_json
 from founder_os.reporting.markdown import render_markdown
 from founder_os.reporting.models import FounderReport
 from founder_os.reporting.service import build_founder_report
@@ -881,3 +882,36 @@ def report_markdown(
         review_db=review_db,
     )
     typer.echo(render_markdown(founder_report))
+
+
+@report_app.command("json")
+def report_json(
+    memory_db: Annotated[
+        Path, typer.Option("--memory-db", help="Path to the memory database.")
+    ] = DEFAULT_DB_PATH,
+    decision_db: Annotated[
+        Path, typer.Option("--decision-db", help="Path to the decision database.")
+    ] = DEFAULT_DECISION_DB_PATH,
+    priority_db: Annotated[
+        Path, typer.Option("--priority-db", help="Path to the priority database.")
+    ] = DEFAULT_PRIORITY_DB_PATH,
+    goal_db: Annotated[
+        Path, typer.Option("--goal-db", help="Path to the goal database.")
+    ] = DEFAULT_GOAL_DB_PATH,
+    project_db: Annotated[
+        Path, typer.Option("--project-db", help="Path to the project database.")
+    ] = DEFAULT_PROJECT_DB_PATH,
+    review_db: Annotated[
+        Path, typer.Option("--review-db", help="Path to the review database.")
+    ] = DEFAULT_REVIEW_DB_PATH,
+) -> None:
+    """Export the founder report as JSON."""
+    founder_report = _build_report(
+        memory_db=memory_db,
+        decision_db=decision_db,
+        priority_db=priority_db,
+        goal_db=goal_db,
+        project_db=project_db,
+        review_db=review_db,
+    )
+    typer.echo(render_json(founder_report))
