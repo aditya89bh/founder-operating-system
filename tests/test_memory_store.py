@@ -50,3 +50,47 @@ def test_delete_memory_removes_record(store: SQLiteMemoryStore) -> None:
     assert store.delete_memory(record.id) is True
     assert store.get_memory(record.id) is None
     assert store.delete_memory(record.id) is False
+
+
+def test_tags_are_persisted(store: SQLiteMemoryStore) -> None:
+    record = store.add_memory(
+        MemoryRecord(content="Closed seed round", tags=["fundraising", "milestone"])
+    )
+
+    fetched = store.get_memory(record.id)
+
+    assert fetched is not None
+    assert fetched.tags == ["fundraising", "milestone"]
+
+
+def test_list_memories_filters_by_tag(store: SQLiteMemoryStore) -> None:
+    store.add_memory(MemoryRecord(content="Eng standup", tags=["eng"]))
+    store.add_memory(MemoryRecord(content="Sales sync", tags=["sales"]))
+
+    results = store.list_memories(tag="eng")
+
+    assert [record.content for record in results] == ["Eng standup"]
+
+
+def test_search_matches_content(store: SQLiteMemoryStore) -> None:
+    store.add_memory(MemoryRecord(content="Spoke with a design partner"))
+    store.add_memory(MemoryRecord(content="Refactored billing"))
+
+    results = store.search_memories("design")
+
+    assert [record.content for record in results] == ["Spoke with a design partner"]
+
+
+def test_search_respects_tag_filter(store: SQLiteMemoryStore) -> None:
+    store.add_memory(MemoryRecord(content="Pricing experiment", tags=["growth"]))
+    store.add_memory(MemoryRecord(content="Pricing review", tags=["finance"]))
+
+    results = store.search_memories("Pricing", tag="growth")
+
+    assert [record.content for record in results] == ["Pricing experiment"]
+
+
+def test_search_treats_wildcards_literally(store: SQLiteMemoryStore) -> None:
+    store.add_memory(MemoryRecord(content="Plain note without wildcards"))
+
+    assert store.search_memories("%") == []
