@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from founder_os.decisions.store import DecisionStore
 from founder_os.goals.store import GoalStore
+from founder_os.memory.store import MemoryStore
 from founder_os.models import GoalStatus, PriorityStatus, ProjectStatus
 from founder_os.priorities.store import PriorityStore
 from founder_os.projects.store import ProjectStore
@@ -46,3 +47,8 @@ def count_recent_decisions(
 ) -> int:
     """Return the number of recent decisions, capped at the ``limit`` most recent."""
     return len(decision_store.list_decisions()[:limit])
+
+
+def count_recent_memories(memory_store: MemoryStore, *, limit: int = DEFAULT_RECENT_LIMIT) -> int:
+    """Return the number of recent memories, capped at the ``limit`` most recent."""
+    return len(memory_store.list_memories()[:limit])
