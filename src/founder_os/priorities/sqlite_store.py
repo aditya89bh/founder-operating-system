@@ -115,3 +115,14 @@ class SQLitePriorityStore:
         if row is None:
             return None
         return self._row_to_priority(row)
+
+    def list_priorities(self) -> list[PriorityRecord]:
+        """Return all stored priorities, newest first."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            """
+            SELECT id, title, description, category, status, created_at, updated_at
+            FROM priorities ORDER BY created_at DESC, id
+            """
+        )
+        return [self._row_to_priority(row) for row in cursor.fetchall()]
