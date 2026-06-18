@@ -10,7 +10,7 @@ import typer
 
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
-from founder_os.models import DecisionOutcome, DecisionRecord, MemoryRecord
+from founder_os.models import DecisionOutcome, DecisionRecord, MemoryRecord, PriorityRecord
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.version import __version__
 
@@ -311,3 +311,43 @@ def priority() -> None:
 
 
 app.add_typer(priority_app, name="priority")
+
+
+@priority_app.command("create")
+def priority_create(
+    title: Annotated[str, typer.Argument(help="Short title for the priority.")],
+    description: Annotated[
+        str, typer.Option("--description", help="Optional details about the priority.")
+    ] = "",
+    category: Annotated[
+        str, typer.Option("--category", help="Grouping label for the priority.")
+    ] = "",
+    urgency: Annotated[
+        int, typer.Option("--urgency", min=1, max=5, help="How time-sensitive (1-5).")
+    ] = 3,
+    importance: Annotated[
+        int, typer.Option("--importance", min=1, max=5, help="How much it matters (1-5).")
+    ] = 3,
+    effort: Annotated[
+        int, typer.Option("--effort", min=1, max=5, help="How much effort it needs (1-5).")
+    ] = 3,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_PRIORITY_DB_PATH,
+) -> None:
+    """Create a new priority and print its identifier."""
+    store = _open_priority_store(database)
+    try:
+        record = store.create_priority(
+            PriorityRecord(
+                title=title,
+                description=description,
+                category=category,
+                urgency=urgency,
+                importance=importance,
+                effort=effort,
+            )
+        )
+    finally:
+        store.close()
+    typer.echo(record.id)
