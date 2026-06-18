@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -72,3 +73,22 @@ class SQLiteMemoryStore:
         )
         connection.commit()
         return memory
+
+    def _row_to_memory(self, row: sqlite3.Row) -> MemoryRecord:
+        return MemoryRecord(
+            id=row["id"],
+            content=row["content"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+        )
+
+    def get_memory(self, memory_id: str) -> MemoryRecord | None:
+        """Return the memory with ``memory_id`` or ``None`` if it does not exist."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT id, content, created_at FROM memories WHERE id = ?",
+            (memory_id,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return self._row_to_memory(row)
