@@ -31,4 +31,5 @@ def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
         review_count=len(reviews),
         oldest_review_date=oldest.review_date if oldest else None,
         newest_review_date=newest.review_date if newest else None,
+        goal_growth=(newest.active_goals - oldest.active_goals) if oldest and newest else 0,
     )
