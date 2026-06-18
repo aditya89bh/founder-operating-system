@@ -267,6 +267,77 @@ mypy src
 pytest
 ```
 
+## Getting started walkthrough
+
+This walkthrough takes you from an empty system to a full founder report using
+only the CLI. Each step builds on the last, following the planning chain from
+goals down to the durable record of what happened.
+
+1. **Set a goal.** Start with the long-term intent.
+
+```bash
+founder-os goal create "Launch Founder OS v1" --timeframe quarterly \
+  --status active --target-date 2026-06-30
+```
+
+2. **Create a project** that advances the goal.
+
+```bash
+founder-os project create "Demo preparation" --status active \
+  --start-date 2026-05-15 --target-date 2026-06-25
+```
+
+3. **Capture the priorities** that must land first. They are ranked by the
+   transparent score `(urgency * importance) / effort`.
+
+```bash
+founder-os priority create "Write launch post" --category marketing \
+  --urgency 5 --importance 4 --effort 2
+founder-os priority list
+```
+
+4. **Record a decision** and review its outcome once you know how it went.
+
+```bash
+founder-os decision create "Delay the mobile application" \
+  --decision "Postpone the mobile app until after v1" \
+  --rationale "The CLI already covers the core workflow"
+founder-os decision list
+founder-os decision update-outcome <decision-id> --outcome successful
+```
+
+5. **Keep a memory** of what you learned.
+
+```bash
+founder-os memory add "Clear docs drove most early signups" --tag launch
+```
+
+6. **Capture a review.** This stores a point-in-time snapshot of every engine.
+
+```bash
+founder-os review create --type weekly --notes "Launch preparation in full swing."
+```
+
+7. **See the whole system** and how it has evolved, then export a report.
+
+```bash
+founder-os status
+founder-os insights report
+founder-os report markdown
+```
+
+To see the finished shape without typing anything, run the bundled walkthrough
+over the demo dataset:
+
+```python
+from examples.walkthrough import render_walkthrough_markdown
+
+print(render_walkthrough_markdown())
+```
+
+The output matches [examples/sample_report.md](examples/sample_report.md). See
+[docs/examples.md](docs/examples.md) for the full set of scenarios.
+
 ## Roadmap
 
 - **Phase 1: Foundation.** Typed domain models, a CLI skeleton with a version
