@@ -11,10 +11,12 @@ import typer
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
 from founder_os.models import DecisionOutcome, DecisionRecord, MemoryRecord
+from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.version import __version__
 
 DEFAULT_DB_PATH = Path.home() / ".founder-os" / "memory.db"
 DEFAULT_DECISION_DB_PATH = Path.home() / ".founder-os" / "decisions.db"
+DEFAULT_PRIORITY_DB_PATH = Path.home() / ".founder-os" / "priorities.db"
 
 
 def _open_store(database: Path) -> SQLiteMemoryStore:
@@ -29,6 +31,14 @@ def _open_decision_store(database: Path) -> SQLiteDecisionStore:
     """Open a connected SQLite decision store at ``database``."""
     database.parent.mkdir(parents=True, exist_ok=True)
     store = SQLiteDecisionStore(database)
+    store.connect()
+    return store
+
+
+def _open_priority_store(database: Path) -> SQLitePriorityStore:
+    """Open a connected SQLite priority store at ``database``."""
+    database.parent.mkdir(parents=True, exist_ok=True)
+    store = SQLitePriorityStore(database)
     store.connect()
     return store
 
@@ -287,3 +297,17 @@ def decision_update_outcome(
         typer.echo(f"No decision found with id {decision_id}.")
         raise typer.Exit(code=1)
     typer.echo(f"Updated outcome for decision {decision_id} to {record.outcome.value}.")
+
+
+priority_app = typer.Typer(
+    help="Capture, rank, and review priorities.",
+    no_args_is_help=True,
+)
+
+
+@priority_app.callback()
+def priority() -> None:
+    """Manage priorities and rank them by deterministic score."""
+
+
+app.add_typer(priority_app, name="priority")
