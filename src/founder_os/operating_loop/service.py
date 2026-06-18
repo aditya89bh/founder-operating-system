@@ -10,12 +10,15 @@ direct reads.
 
 from __future__ import annotations
 
+from datetime import date
+
 from founder_os.decisions.store import DecisionStore
 from founder_os.goals.store import GoalStore
 from founder_os.memory.store import MemoryStore
 from founder_os.models import GoalStatus, PriorityStatus, ProjectStatus
 from founder_os.priorities.store import PriorityStore
 from founder_os.projects.store import ProjectStore
+from founder_os.reviews.store import ReviewStore
 
 # The number of most-recent records treated as "recent" activity for an engine.
 DEFAULT_RECENT_LIMIT = 5
@@ -52,3 +55,11 @@ def count_recent_decisions(
 def count_recent_memories(memory_store: MemoryStore, *, limit: int = DEFAULT_RECENT_LIMIT) -> int:
     """Return the number of recent memories, capped at the ``limit`` most recent."""
     return len(memory_store.list_memories()[:limit])
+
+
+def latest_review_date(review_store: ReviewStore) -> date | None:
+    """Return the date of the most recent review, or ``None`` when none exist."""
+    reviews = review_store.list_reviews()
+    if not reviews:
+        return None
+    return reviews[0].review_date
