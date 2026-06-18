@@ -24,6 +24,7 @@ from founder_os.models import (
 )
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
+from founder_os.reviews.sqlite_store import SQLiteReviewStore
 from founder_os.version import __version__
 
 DEFAULT_DB_PATH = Path.home() / ".founder-os" / "memory.db"
@@ -31,6 +32,7 @@ DEFAULT_DECISION_DB_PATH = Path.home() / ".founder-os" / "decisions.db"
 DEFAULT_PRIORITY_DB_PATH = Path.home() / ".founder-os" / "priorities.db"
 DEFAULT_GOAL_DB_PATH = Path.home() / ".founder-os" / "goals.db"
 DEFAULT_PROJECT_DB_PATH = Path.home() / ".founder-os" / "projects.db"
+DEFAULT_REVIEW_DB_PATH = Path.home() / ".founder-os" / "reviews.db"
 
 
 def _open_store(database: Path) -> SQLiteMemoryStore:
@@ -69,6 +71,14 @@ def _open_project_store(database: Path) -> SQLiteProjectStore:
     """Open a connected SQLite project store at ``database``."""
     database.parent.mkdir(parents=True, exist_ok=True)
     store = SQLiteProjectStore(database)
+    store.connect()
+    return store
+
+
+def _open_review_store(database: Path) -> SQLiteReviewStore:
+    """Open a connected SQLite review store at ``database``."""
+    database.parent.mkdir(parents=True, exist_ok=True)
+    store = SQLiteReviewStore(database)
     store.connect()
     return store
 
@@ -585,3 +595,17 @@ def project_list(
         return
     for record in records:
         typer.echo(_format_project(record))
+
+
+review_app = typer.Typer(
+    help="Capture periodic reviews with system snapshots.",
+    no_args_is_help=True,
+)
+
+
+@review_app.callback()
+def review() -> None:
+    """Create and browse periodic reviews of the whole system."""
+
+
+app.add_typer(review_app, name="review")
