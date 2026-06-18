@@ -72,3 +72,30 @@ def memory_add(
     finally:
         store.close()
     typer.echo(record.id)
+
+
+def _format_memory(record: MemoryRecord) -> str:
+    tags = f" [{', '.join(record.tags)}]" if record.tags else ""
+    return f"{record.id}  {record.created_at.isoformat()}{tags}  {record.content}"
+
+
+@memory_app.command("list")
+def memory_list(
+    tag: Annotated[
+        str | None, typer.Option("--tag", "-t", help="Only show memories with this tag.")
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DB_PATH,
+) -> None:
+    """List stored memories, newest first."""
+    store = _open_store(database)
+    try:
+        records = store.list_memories(tag=tag)
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No memories found.")
+        return
+    for record in records:
+        typer.echo(_format_memory(record))
