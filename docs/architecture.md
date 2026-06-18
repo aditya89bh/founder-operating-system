@@ -56,6 +56,9 @@ The package is split into focused modules with clear responsibilities:
   workflow, which aggregates every engine into a single `FounderSnapshot` with
   boolean health indicators (added in Phase 8). See
   [founder_operating_loop.md](founder_operating_loop.md).
+- `founder_os.insights` — historical insights: deterministic growth and date-range
+  reporting derived only from stored review snapshots (added in Phase 9). See
+  [historical_insights.md](historical_insights.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
 Dependencies flow in one direction. `cli` depends on `version`, `models`, and
@@ -94,7 +97,7 @@ Founder Operating Loop, the first workflow that reads across every engine at
 once. It models running a company as a continuous cycle:
 
 ```
-Observe → Remember → Decide → Prioritize → Execute → Review → Adapt
+Observe → Remember → Decide → Prioritize → Execute → Review → Learn
 ```
 
 - **Observe / Remember** — the memory engine captures notes and observations.
@@ -102,8 +105,10 @@ Observe → Remember → Decide → Prioritize → Execute → Review → Adapt
 - **Prioritize** — the priority engine ranks what deserves attention.
 - **Execute** — projects advance the goals they serve.
 - **Review** — the review engine snapshots progress over time.
-- **Adapt** — the operating loop reads the live state of every engine and
-  assembles a deterministic `FounderSnapshot` so the founder can adjust course.
+- **Learn** — the operating loop reads the live state of every engine into a
+  deterministic `FounderSnapshot`, and historical insights read the stored review
+  snapshots to show how the system has evolved, closing the loop so the founder
+  can adjust course.
 
 The loop computes active counts for goals, projects, and priorities, the number
 of recent decisions and memories (capped at a fixed recent limit), and the
@@ -111,6 +116,17 @@ latest review date. It also derives boolean `HealthIndicators` that flag missing
 pieces (no active goals, projects, priorities, or recorded reviews). The loop
 depends on the engines' storage protocols but holds no references to their
 records — it only reads and counts, performing no scoring or recommendation.
+
+## Historical insights
+
+Phase 9 adds the "Learn" step over time. The `insights` subsystem reads only the
+snapshots already stored on each review and derives a deterministic
+`HistoricalInsights` summary: the review count, the date range from the earliest
+to the latest review, and the growth of goals, projects, priorities, decisions,
+and memories. Growth is simply the latest review snapshot minus the earliest one
+— a plain integer delta that may be negative, never a percentage or score.
+Because it reads stored snapshots rather than recomputing past state, the same
+reviews always yield the same insights, independent of the live engines.
 
 ## Design principles
 

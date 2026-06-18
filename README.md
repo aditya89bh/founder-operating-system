@@ -119,7 +119,18 @@ The `founder-os status` command runs the loop and prints a report. See
 [docs/founder_operating_loop.md](docs/founder_operating_loop.md) for full details.
 
 The loop models running a company as a continuous cycle: **Observe → Remember →
-Decide → Prioritize → Execute → Review → Adapt.**
+Decide → Prioritize → Execute → Review → Learn.**
+
+### Historical insights
+
+The historical insights subsystem (`founder_os.insights`) adds time awareness
+without any AI. It reads only the snapshots stored on each review and derives a
+deterministic `HistoricalInsights` summary — review count, the date range from
+the earliest to the latest review, and the growth (latest snapshot minus earliest
+snapshot) of goals, projects, priorities, decisions, and memories. Growth is a
+plain integer delta and may be negative; there are no percentages or scores. The
+`founder-os insights report` command prints it. See
+[docs/historical_insights.md](docs/historical_insights.md) for full details.
 
 Requires Python 3.11 or newer.
 
@@ -192,6 +203,12 @@ See the whole system at a glance with the operating loop:
 founder-os status
 ```
 
+Review how the system has evolved across reviews:
+
+```bash
+founder-os insights report
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -234,9 +251,12 @@ pytest
 - **Phase 7: Review engine.** SQLite-backed storage for periodic reviews with a
   cross-system snapshot of active and completed goals, projects, and priorities
   plus decision and memory totals, with a `review` CLI command group.
-- **Phase 8 (current): Founder Operating Loop.** The first integrated workflow,
-  aggregating every engine into a deterministic `FounderSnapshot` with boolean
-  health indicators, exposed through the `founder-os status` command.
+- **Phase 8: Founder Operating Loop.** The first integrated workflow, aggregating
+  every engine into a deterministic `FounderSnapshot` with boolean health
+  indicators, exposed through the `founder-os status` command.
+- **Phase 9 (current): Historical insights.** Deterministic growth and date-range
+  reporting derived only from stored review snapshots, exposed through the
+  `founder-os insights report` command.
 - **Future phases.** Dashboards and analytics. These remain out of scope for now.
 
 ## License
