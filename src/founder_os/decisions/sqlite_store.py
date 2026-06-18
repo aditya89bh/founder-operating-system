@@ -7,7 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 from types import TracebackType
 
-from founder_os.models import DecisionRecord
+from founder_os.models import DecisionOutcome, DecisionRecord
 
 _CREATE_DECISIONS_TABLE = """
 CREATE TABLE IF NOT EXISTS decisions (
@@ -146,3 +146,39 @@ class SQLiteDecisionStore:
         cursor = connection.execute("DELETE FROM decisions WHERE id = ?", (decision_id,))
         connection.commit()
         return cursor.rowcount > 0
+
+    def update_outcome(
+        self,
+        decision_id: str,
+        outcome: str,
+        *,
+        outcome_notes: str = "",
+        review_date: date | None = None,
+    ) -> DecisionRecord | None:
+        """Record the outcome of a decision and return the updated record."""
+        existing = self.get_decision(decision_id)
+        if existing is None:
+            return None
+        updated = existing.model_copy(
+            update={
+                "outcome": DecisionOutcome(outcome),
+                "outcome_notes": outcome_notes,
+                "review_date": review_date,
+            }
+        )
+        connection = self._require_connection()
+        connection.execute(
+            """
+            UPDATE decisions
+            SET outcome = ?, outcome_notes = ?, review_date = ?
+            WHERE id = ?
+            """,
+            (
+                updated.outcome.value,
+                updated.outcome_notes,
+                updated.review_date.isoformat() if updated.review_date else None,
+                decision_id,
+            ),
+        )
+        connection.commit()
+        return updated
