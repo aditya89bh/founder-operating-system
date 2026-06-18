@@ -99,3 +99,14 @@ class SQLiteReviewStore:
         if row is None:
             return None
         return self._row_to_review(row)
+
+    def list_reviews(self) -> list[ReviewRecord]:
+        """Return all stored reviews, newest first."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            """
+            SELECT id, review_date, created_at
+            FROM reviews ORDER BY review_date DESC, created_at DESC, id
+            """
+        )
+        return [self._row_to_review(row) for row in cursor.fetchall()]
