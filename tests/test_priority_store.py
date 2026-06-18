@@ -83,15 +83,9 @@ def test_default_score_is_neutral() -> None:
 
 
 def test_rank_priorities_orders_by_score_descending(store: SQLitePriorityStore) -> None:
-    low = store.create_priority(
-        PriorityRecord(title="Low", urgency=2, importance=2, effort=4)
-    )
-    high = store.create_priority(
-        PriorityRecord(title="High", urgency=5, importance=5, effort=1)
-    )
-    mid = store.create_priority(
-        PriorityRecord(title="Mid", urgency=3, importance=3, effort=3)
-    )
+    low = store.create_priority(PriorityRecord(title="Low", urgency=2, importance=2, effort=4))
+    high = store.create_priority(PriorityRecord(title="High", urgency=5, importance=5, effort=1))
+    mid = store.create_priority(PriorityRecord(title="Mid", urgency=3, importance=3, effort=3))
 
     ranked = store.rank_priorities()
 
