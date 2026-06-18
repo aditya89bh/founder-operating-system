@@ -119,3 +119,10 @@ class SQLiteGoalStore:
             """
         )
         return [self._row_to_goal(row) for row in cursor.fetchall()]
+
+    def delete_goal(self, goal_id: str) -> bool:
+        """Delete the goal with ``goal_id``; return ``True`` if a row was removed."""
+        connection = self._require_connection()
+        cursor = connection.execute("DELETE FROM goals WHERE id = ?", (goal_id,))
+        connection.commit()
+        return cursor.rowcount > 0
