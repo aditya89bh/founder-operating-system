@@ -50,6 +50,25 @@ def _historical_growth_lines(insights: HistoricalInsights) -> list[str]:
     ]
 
 
+def _review_history_lines(insights: HistoricalInsights) -> list[str]:
+    oldest = (
+        insights.oldest_review_date.isoformat()
+        if insights.oldest_review_date is not None
+        else "none"
+    )
+    newest = (
+        insights.newest_review_date.isoformat()
+        if insights.newest_review_date is not None
+        else "none"
+    )
+    return [
+        f"## {ReportSection.REVIEW_HISTORY}",
+        f"- Reviews recorded: {insights.review_count}",
+        f"- Oldest review: {oldest}",
+        f"- Newest review: {newest}",
+    ]
+
+
 def render_markdown(report: FounderReport) -> str:
     """Render ``report`` as a Markdown document."""
     lines = ["# Founder Report"]
@@ -59,4 +78,6 @@ def render_markdown(report: FounderReport) -> str:
     lines.extend(_health_indicator_lines(report.snapshot))
     lines.append("")
     lines.extend(_historical_growth_lines(report.insights))
+    lines.append("")
+    lines.extend(_review_history_lines(report.insights))
     return "\n".join(lines)
