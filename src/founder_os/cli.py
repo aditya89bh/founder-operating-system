@@ -565,10 +565,7 @@ def project_create(
 def _format_project(record: ProjectRecord) -> str:
     start = record.start_date.isoformat() if record.start_date else "-"
     target = record.target_date.isoformat() if record.target_date else "-"
-    return (
-        f"{record.id}  [{record.status.value}]  "
-        f"start={start} target={target}  {record.title}"
-    )
+    return f"{record.id}  [{record.status.value}]  start={start} target={target}  {record.title}"
 
 
 @project_app.command("list")

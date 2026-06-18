@@ -30,7 +30,7 @@ Phase 1 defines the foundational records the system is built on:
 - **Decision** (`DecisionRecord`) — a decision with its context and rationale.
 - **Priority** (`PriorityRecord`) — a priority scored by urgency, importance, and effort.
 - **Goal** (`GoalRecord`) — a goal pursued over a timeframe, with priorities aligned to it.
-- **Project** (`ProjectRecord`) — a concrete body of work that advances goals.
+- **Project** (`ProjectRecord`) — a body of work that advances a goal; the layer between goals and priorities.
 
 Each record is a strictly validated Pydantic v2 model with an opaque identifier
 and a UTC creation timestamp.
@@ -80,6 +80,15 @@ priorities to the goals they serve. It defines a `GoalStore` protocol and a
 `SQLiteGoalStore` implementation supporting create, retrieve, list, delete,
 priority linking, and goal-priority retrieval. See
 [docs/goal_engine.md](docs/goal_engine.md) for full details.
+
+### Project engine
+
+The project engine (`founder_os.projects`) provides durable storage and retrieval
+for projects, backed by SQLite, plus the relationship storage that aligns
+projects to the goals they advance. It defines a `ProjectStore` protocol and a
+`SQLiteProjectStore` implementation supporting create, retrieve, list, delete,
+goal linking, and goal-project retrieval. See
+[docs/project_engine.md](docs/project_engine.md) for full details.
 
 ## Installation
 
@@ -134,6 +143,13 @@ founder-os goal create "Reach 100 paying customers" --timeframe yearly --target-
 founder-os goal list
 ```
 
+Organize work into projects:
+
+```bash
+founder-os project create "Onboarding revamp" --status active --target-date 2026-03-31
+founder-os project list
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -167,11 +183,13 @@ pytest
 - **Phase 4: Priority engine.** SQLite-backed storage and deterministic ranking
   for priorities using `(urgency * importance) / effort`, with a `priority` CLI
   command group.
-- **Phase 5 (current): Goal engine.** SQLite-backed storage for long-term goals
-  with timeframes, target dates, and goal-priority alignment, with a `goal` CLI
+- **Phase 5: Goal engine.** SQLite-backed storage for long-term goals with
+  timeframes, target dates, and goal-priority alignment, with a `goal` CLI
   command group.
-- **Future phases.** Project tracking, reviews, and dashboards. These remain out
-  of scope for now.
+- **Phase 6 (current): Project engine.** SQLite-backed storage for projects with
+  status, start and target dates, and goal-project alignment, with a `project`
+  CLI command group.
+- **Future phases.** Reviews and dashboards. These remain out of scope for now.
 
 ## License
 

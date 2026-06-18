@@ -17,7 +17,7 @@ validation and is intentionally free of behavior beyond shape and validation.
 | `DecisionRecord` | A decision with its surrounding context and rationale.            |
 | `PriorityRecord` | A priority scored by urgency, importance, and effort.             |
 | `GoalRecord`     | A goal pursued over a timeframe, with priorities aligned to it.   |
-| `ProjectRecord`  | A concrete body of work that advances one or more goals.          |
+| `ProjectRecord`  | A body of work that advances a goal, between goals and priorities. |
 
 Shared conventions across records:
 
@@ -44,13 +44,16 @@ The package is split into focused modules with clear responsibilities:
 - `founder_os.goals` — the goal engine: a storage protocol and its SQLite-backed
   implementation with goal-priority alignment (added in Phase 5). See
   [goal_engine.md](goal_engine.md).
+- `founder_os.projects` — the project engine: a storage protocol and its
+  SQLite-backed implementation with goal-project alignment (added in Phase 6).
+  See [project_engine.md](project_engine.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
 Dependencies flow in one direction. `cli` depends on `version`, `models`,
-`memory`, `decisions`, `priorities`, and `goals`; the `memory`, `decisions`,
-`priorities`, and `goals` engines depend on `models`; `models` is standalone.
-Outside of the engines' SQLite storage, the package does not depend on external
-services.
+`memory`, `decisions`, `priorities`, `goals`, and `projects`; the `memory`,
+`decisions`, `priorities`, `goals`, and `projects` engines depend on `models`;
+`models` is standalone. Outside of the engines' SQLite storage, the package does
+not depend on external services.
 
 ## Design principles
 
