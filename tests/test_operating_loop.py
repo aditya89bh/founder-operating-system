@@ -25,6 +25,7 @@ from founder_os.models import (
 )
 from founder_os.operating_loop.service import (
     build_founder_snapshot,
+    build_health_indicators,
     count_active_goals,
     count_active_priorities,
     count_active_projects,
@@ -152,3 +153,68 @@ def test_build_founder_snapshot_aggregates_counts(stores: Stores) -> None:
     assert snapshot.recent_decision_count == 1
     assert snapshot.recent_memory_count == 1
     assert snapshot.latest_review_date == date(2026, 5, 1)
+
+
+def test_health_indicators_all_raised_when_empty() -> None:
+    health = build_health_indicators(
+        active_goal_count=0,
+        active_project_count=0,
+        active_priority_count=0,
+        review_date=None,
+    )
+
+    assert health.no_active_goals is True
+    assert health.no_active_projects is True
+    assert health.no_active_priorities is True
+    assert health.no_recent_reviews is True
+
+
+def test_health_indicators_clear_when_present() -> None:
+    health = build_health_indicators(
+        active_goal_count=2,
+        active_project_count=1,
+        active_priority_count=3,
+        review_date=date(2026, 6, 1),
+    )
+
+    assert health.no_active_goals is False
+    assert health.no_active_projects is False
+    assert health.no_active_priorities is False
+    assert health.no_recent_reviews is False
+
+
+def test_snapshot_health_on_empty_system(stores: Stores) -> None:
+    snapshot = build_founder_snapshot(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memory,
+        review_store=stores.reviews,
+    )
+
+    assert snapshot.active_goal_count == 0
+    assert snapshot.latest_review_date is None
+    assert snapshot.health.no_active_goals is True
+    assert snapshot.health.no_active_projects is True
+    assert snapshot.health.no_active_priorities is True
+    assert snapshot.health.no_recent_reviews is True
+
+
+def test_snapshot_health_partial(stores: Stores) -> None:
+    stores.goals.create_goal(GoalRecord(title="Active goal", status=GoalStatus.ACTIVE))
+    stores.reviews.create_review(ReviewRecord(review_date=date(2026, 4, 1)))
+
+    snapshot = build_founder_snapshot(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memory,
+        review_store=stores.reviews,
+    )
+
+    assert snapshot.health.no_active_goals is False
+    assert snapshot.health.no_recent_reviews is False
+    assert snapshot.health.no_active_projects is True
+    assert snapshot.health.no_active_priorities is True
