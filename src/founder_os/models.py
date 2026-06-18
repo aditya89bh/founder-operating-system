@@ -174,4 +174,5 @@ class ReviewRecord(BaseModel):
     id: str = Field(default_factory=_new_id)
     review_date: date = Field(default_factory=_today)
     review_type: ReviewType = ReviewType.WEEKLY
+    notes: str = Field(default="", max_length=10_000)
     created_at: datetime = Field(default_factory=_utc_now)
