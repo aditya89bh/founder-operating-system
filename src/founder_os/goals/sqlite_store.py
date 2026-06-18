@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS goals (
     title TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     timeframe TEXT NOT NULL DEFAULT 'quarterly',
+    target_date TEXT,
     status TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
@@ -74,14 +75,16 @@ class SQLiteGoalStore:
         connection.execute(
             """
             INSERT INTO goals
-                (id, title, description, timeframe, status, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, title, description, timeframe, target_date, status,
+                 created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 goal.id,
                 goal.title,
                 goal.description,
                 goal.timeframe.value,
+                goal.target_date.isoformat() if goal.target_date else None,
                 goal.status.value,
                 goal.created_at.isoformat(),
                 goal.updated_at.isoformat(),
@@ -91,11 +94,13 @@ class SQLiteGoalStore:
         return goal
 
     def _row_to_goal(self, row: sqlite3.Row) -> GoalRecord:
+        target_date = row["target_date"]
         return GoalRecord(
             id=row["id"],
             title=row["title"],
             description=row["description"],
             timeframe=row["timeframe"],
+            target_date=date.fromisoformat(target_date) if target_date else None,
             status=row["status"],
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
@@ -106,7 +111,8 @@ class SQLiteGoalStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, timeframe, status, created_at, updated_at
+            SELECT id, title, description, timeframe, target_date, status,
+                   created_at, updated_at
             FROM goals WHERE id = ?
             """,
             (goal_id,),
@@ -121,7 +127,8 @@ class SQLiteGoalStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, timeframe, status, created_at, updated_at
+            SELECT id, title, description, timeframe, target_date, status,
+                   created_at, updated_at
             FROM goals ORDER BY created_at DESC, id
             """
         )

@@ -123,6 +123,7 @@ class GoalRecord(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10_000)
     timeframe: GoalTimeframe = GoalTimeframe.QUARTERLY
+    target_date: date | None = None
     status: GoalStatus = GoalStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
     updated_at: datetime = Field(default_factory=_utc_now)
