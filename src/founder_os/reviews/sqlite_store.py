@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from types import TracebackType
 
+from founder_os.models import ReviewRecord
+
 _CREATE_REVIEWS_TABLE = """
 CREATE TABLE IF NOT EXISTS reviews (
     id TEXT PRIMARY KEY,
@@ -60,3 +62,20 @@ class SQLiteReviewStore:
         if self._connection is None:
             raise RuntimeError("Store is not connected; call connect() first.")
         return self._connection
+
+    def create_review(self, review: ReviewRecord) -> ReviewRecord:
+        """Persist ``review`` and return the stored record."""
+        connection = self._require_connection()
+        connection.execute(
+            """
+            INSERT INTO reviews (id, review_date, created_at)
+            VALUES (?, ?, ?)
+            """,
+            (
+                review.id,
+                review.review_date.isoformat(),
+                review.created_at.isoformat(),
+            ),
+        )
+        connection.commit()
+        return review
