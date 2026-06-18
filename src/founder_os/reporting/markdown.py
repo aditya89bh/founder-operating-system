@@ -6,6 +6,7 @@ JSON exporter exactly so both formats carry identical information.
 
 from __future__ import annotations
 
+from founder_os.insights.models import HistoricalInsights
 from founder_os.operating_loop.models import FounderSnapshot
 from founder_os.reporting.models import FounderReport, ReportSection
 
@@ -38,6 +39,17 @@ def _health_indicator_lines(snapshot: FounderSnapshot) -> list[str]:
     ]
 
 
+def _historical_growth_lines(insights: HistoricalInsights) -> list[str]:
+    return [
+        f"## {ReportSection.HISTORICAL_GROWTH}",
+        f"- Goals: {insights.goal_growth:+d}",
+        f"- Projects: {insights.project_growth:+d}",
+        f"- Priorities: {insights.priority_growth:+d}",
+        f"- Decisions: {insights.decision_growth:+d}",
+        f"- Memories: {insights.memory_growth:+d}",
+    ]
+
+
 def render_markdown(report: FounderReport) -> str:
     """Render ``report`` as a Markdown document."""
     lines = ["# Founder Report"]
@@ -45,4 +57,6 @@ def render_markdown(report: FounderReport) -> str:
     lines.extend(_current_state_lines(report.snapshot))
     lines.append("")
     lines.extend(_health_indicator_lines(report.snapshot))
+    lines.append("")
+    lines.extend(_historical_growth_lines(report.insights))
     return "\n".join(lines)
