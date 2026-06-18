@@ -59,6 +59,9 @@ The package is split into focused modules with clear responsibilities:
 - `founder_os.insights` — historical insights: deterministic growth and date-range
   reporting derived only from stored review snapshots (added in Phase 9). See
   [historical_insights.md](historical_insights.md).
+- `founder_os.reporting` — the founder report system: combines the operating-loop
+  snapshot and historical insights into one report and exports it to Markdown and
+  JSON (added in Phase 10). See [founder_reports.md](founder_reports.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
 Dependencies flow in one direction. `cli` depends on `version`, `models`, and
@@ -97,7 +100,7 @@ Founder Operating Loop, the first workflow that reads across every engine at
 once. It models running a company as a continuous cycle:
 
 ```
-Observe → Remember → Decide → Prioritize → Execute → Review → Learn
+Observe → Remember → Decide → Prioritize → Execute → Review → Learn → Report
 ```
 
 - **Observe / Remember** — the memory engine captures notes and observations.
@@ -127,6 +130,17 @@ and memories. Growth is simply the latest review snapshot minus the earliest one
 — a plain integer delta that may be negative, never a percentage or score.
 Because it reads stored snapshots rather than recomputing past state, the same
 reviews always yield the same insights, independent of the live engines.
+
+## Founder reports
+
+Phase 10 adds the "Report" step: the first founder-facing deliverable. The
+`reporting` subsystem composes the operating-loop `FounderSnapshot` with the
+`HistoricalInsights` into a single `FounderReport` and exports it to Markdown and
+JSON. Both formats render the same four sections — Current State, Health
+Indicators, Historical Growth, and Review History — defined once by the
+`ReportSection` enum, so the two exports always carry identical information. The
+report only composes existing, deterministic results; it adds no analysis,
+scoring, or recommendation, and introduces no external services.
 
 ## Design principles
 

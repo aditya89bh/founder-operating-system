@@ -119,7 +119,7 @@ The `founder-os status` command runs the loop and prints a report. See
 [docs/founder_operating_loop.md](docs/founder_operating_loop.md) for full details.
 
 The loop models running a company as a continuous cycle: **Observe → Remember →
-Decide → Prioritize → Execute → Review → Learn.**
+Decide → Prioritize → Execute → Review → Learn → Report.**
 
 ### Historical insights
 
@@ -131,6 +131,16 @@ snapshot) of goals, projects, priorities, decisions, and memories. Growth is a
 plain integer delta and may be negative; there are no percentages or scores. The
 `founder-os insights report` command prints it. See
 [docs/historical_insights.md](docs/historical_insights.md) for full details.
+
+### Founder reports
+
+The founder report system (`founder_os.reporting`) is the first founder-facing
+deliverable. It combines the operating-loop snapshot with historical insights
+into a single deterministic `FounderReport` with four sections — Current State,
+Health Indicators, Historical Growth, and Review History — and exports it to
+Markdown and JSON, both carrying identical information. The `founder-os report
+markdown` and `founder-os report json` commands produce it. See
+[docs/founder_reports.md](docs/founder_reports.md) for full details.
 
 Requires Python 3.11 or newer.
 
@@ -209,6 +219,13 @@ Review how the system has evolved across reviews:
 founder-os insights report
 ```
 
+Export a combined founder report to Markdown or JSON:
+
+```bash
+founder-os report markdown
+founder-os report json
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -254,9 +271,12 @@ pytest
 - **Phase 8: Founder Operating Loop.** The first integrated workflow, aggregating
   every engine into a deterministic `FounderSnapshot` with boolean health
   indicators, exposed through the `founder-os status` command.
-- **Phase 9 (current): Historical insights.** Deterministic growth and date-range
-  reporting derived only from stored review snapshots, exposed through the
-  `founder-os insights report` command.
+- **Phase 9: Historical insights.** Deterministic growth and date-range reporting
+  derived only from stored review snapshots, exposed through the `founder-os
+  insights report` command.
+- **Phase 10 (current): Founder report system.** Combines the operating-loop
+  snapshot and historical insights into a single deterministic report exported to
+  Markdown and JSON, via the `founder-os report` command group.
 - **Future phases.** Dashboards and analytics. These remain out of scope for now.
 
 ## License
