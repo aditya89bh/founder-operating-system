@@ -45,6 +45,7 @@ class DecisionRecord(BaseModel):
     context: str = Field(default="", max_length=10_000)
     decision: str = Field(min_length=1, max_length=10_000)
     rationale: str = Field(default="", max_length=10_000)
+    assumptions: str = Field(default="", max_length=10_000)
     created_at: datetime = Field(default_factory=_utc_now)
 
 

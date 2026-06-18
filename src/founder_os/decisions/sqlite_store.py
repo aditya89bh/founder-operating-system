@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS decisions (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     decision TEXT NOT NULL,
+    context TEXT NOT NULL DEFAULT '',
+    rationale TEXT NOT NULL DEFAULT '',
+    assumptions TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL
 )
 """
@@ -69,11 +72,18 @@ class SQLiteDecisionStore:
         """Persist ``decision`` and return the stored record."""
         connection = self._require_connection()
         connection.execute(
-            "INSERT INTO decisions (id, title, decision, created_at) VALUES (?, ?, ?, ?)",
+            """
+            INSERT INTO decisions
+                (id, title, decision, context, rationale, assumptions, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
             (
                 decision.id,
                 decision.title,
                 decision.decision,
+                decision.context,
+                decision.rationale,
+                decision.assumptions,
                 decision.created_at.isoformat(),
             ),
         )
@@ -85,6 +95,9 @@ class SQLiteDecisionStore:
             id=row["id"],
             title=row["title"],
             decision=row["decision"],
+            context=row["context"],
+            rationale=row["rationale"],
+            assumptions=row["assumptions"],
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
@@ -92,7 +105,10 @@ class SQLiteDecisionStore:
         """Return the decision with ``decision_id`` or ``None`` if it is absent."""
         connection = self._require_connection()
         cursor = connection.execute(
-            "SELECT id, title, decision, created_at FROM decisions WHERE id = ?",
+            """
+            SELECT id, title, decision, context, rationale, assumptions, created_at
+            FROM decisions WHERE id = ?
+            """,
             (decision_id,),
         )
         row = cursor.fetchone()
@@ -104,7 +120,10 @@ class SQLiteDecisionStore:
         """Return all stored decisions, newest first."""
         connection = self._require_connection()
         cursor = connection.execute(
-            "SELECT id, title, decision, created_at FROM decisions ORDER BY created_at DESC, id"
+            """
+            SELECT id, title, decision, context, rationale, assumptions, created_at
+            FROM decisions ORDER BY created_at DESC, id
+            """
         )
         return [self._row_to_decision(row) for row in cursor.fetchall()]
 
