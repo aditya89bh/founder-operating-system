@@ -9,7 +9,13 @@ from __future__ import annotations
 
 from datetime import date
 
-from founder_os.models import GoalRecord, GoalStatus, GoalTimeframe
+from founder_os.models import (
+    GoalRecord,
+    GoalStatus,
+    GoalTimeframe,
+    ProjectRecord,
+    ProjectStatus,
+)
 
 
 def demo_goals() -> list[GoalRecord]:
@@ -42,5 +48,38 @@ def demo_goals() -> list[GoalRecord]:
             timeframe=GoalTimeframe.QUARTERLY,
             target_date=date(2026, 3, 31),
             status=GoalStatus.COMPLETED,
+        ),
+    ]
+
+
+def demo_projects() -> list[ProjectRecord]:
+    """Return the demo projects spanning planned, active, and completed work."""
+    return [
+        ProjectRecord(
+            title="Founder OS development",
+            description="Build the engines that make up the operating system.",
+            status=ProjectStatus.ACTIVE,
+            start_date=date(2026, 1, 5),
+            target_date=date(2026, 6, 30),
+        ),
+        ProjectRecord(
+            title="Documentation refresh",
+            description="Bring the docs in line with the shipped engines.",
+            status=ProjectStatus.ACTIVE,
+            start_date=date(2026, 5, 1),
+            target_date=date(2026, 7, 15),
+        ),
+        ProjectRecord(
+            title="Demo preparation",
+            description="Assemble scenarios and a demo dataset for launch.",
+            status=ProjectStatus.PLANNED,
+            target_date=date(2026, 8, 1),
+        ),
+        ProjectRecord(
+            title="Landing page",
+            description="Ship the first marketing landing page.",
+            status=ProjectStatus.COMPLETED,
+            start_date=date(2026, 1, 1),
+            target_date=date(2026, 2, 1),
         ),
     ]
