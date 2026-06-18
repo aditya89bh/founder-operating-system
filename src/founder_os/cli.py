@@ -142,3 +142,17 @@ def memory_search(
         return
     for record in records:
         typer.echo(_format_memory(record))
+
+
+decision_app = typer.Typer(
+    help="Record, review, and manage decisions.",
+    no_args_is_help=True,
+)
+
+
+@decision_app.callback()
+def decision() -> None:
+    """Manage recorded decisions."""
+
+
+app.add_typer(decision_app, name="decision")
