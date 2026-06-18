@@ -10,6 +10,8 @@ from __future__ import annotations
 from datetime import date
 
 from founder_os.models import (
+    DecisionOutcome,
+    DecisionRecord,
     GoalRecord,
     GoalStatus,
     GoalTimeframe,
@@ -134,5 +136,56 @@ def demo_priorities() -> list[PriorityRecord]:
             importance=3,
             effort=2,
             status=PriorityStatus.COMPLETED,
+        ),
+    ]
+
+
+def demo_decisions() -> list[DecisionRecord]:
+    """Return the demo decisions, including reviewed outcomes to learn from."""
+    return [
+        DecisionRecord(
+            title="Open source the project",
+            context="Weighing community trust against losing some control.",
+            decision="Release Founder OS under the MIT license.",
+            rationale="Openness builds trust and invites contributors early.",
+            assumptions="Founders prefer tools they can inspect and self-host.",
+            outcome=DecisionOutcome.SUCCESSFUL,
+            outcome_notes="Drove early adoption and useful contributions.",
+            review_date=date(2026, 5, 1),
+        ),
+        DecisionRecord(
+            title="Delay the mobile application",
+            context="Limited engineering time before the v1 launch.",
+            decision="Postpone the mobile app until after v1.",
+            rationale="The CLI covers the core workflow for launch.",
+            assumptions="Early founders are comfortable in a terminal.",
+            outcome=DecisionOutcome.PENDING,
+        ),
+        DecisionRecord(
+            title="Adopt weekly planning",
+            context="Execution felt reactive and unfocused.",
+            decision="Run a structured weekly planning session every Monday.",
+            rationale="A fixed cadence reduces context switching.",
+            outcome=DecisionOutcome.SUCCESSFUL,
+            outcome_notes="Priorities became clearer week to week.",
+            review_date=date(2026, 4, 1),
+        ),
+        DecisionRecord(
+            title="Use SQLite for storage",
+            context="Choosing a persistence layer for the engines.",
+            decision="Store each engine's data in local SQLite databases.",
+            rationale="Zero-config, file-based, and easy to reason about.",
+            outcome=DecisionOutcome.SUCCESSFUL,
+            outcome_notes="Kept the system dependency-light and portable.",
+            review_date=date(2026, 3, 15),
+        ),
+        DecisionRecord(
+            title="Skip a hosted backend for v1",
+            context="Considered a sync service for the first release.",
+            decision="Ship a local-only v1 with no hosted backend.",
+            rationale="Avoids operational burden while validating demand.",
+            outcome=DecisionOutcome.MIXED,
+            outcome_notes="Simpler to ship, but some users wanted sync.",
+            review_date=date(2026, 6, 1),
         ),
     ]
