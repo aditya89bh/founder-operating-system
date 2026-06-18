@@ -19,6 +19,8 @@ from founder_os.models import (
     GoalTimeframe,
     MemoryRecord,
     PriorityRecord,
+    ProjectRecord,
+    ProjectStatus,
 )
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
@@ -510,3 +512,51 @@ def project() -> None:
 
 
 app.add_typer(project_app, name="project")
+
+
+@project_app.command("create")
+def project_create(
+    title: Annotated[str, typer.Argument(help="Short title for the project.")],
+    description: Annotated[
+        str, typer.Option("--description", help="Optional details about the project.")
+    ] = "",
+    status: Annotated[
+        ProjectStatus, typer.Option("--status", help="The project's lifecycle state.")
+    ] = ProjectStatus.PLANNED,
+    start_date: Annotated[
+        str | None, typer.Option("--start-date", help="Start date in YYYY-MM-DD format.")
+    ] = None,
+    target_date: Annotated[
+        str | None, typer.Option("--target-date", help="Target date in YYYY-MM-DD format.")
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_PROJECT_DB_PATH,
+) -> None:
+    """Create a new project and print its identifier."""
+    parsed_start: date | None = None
+    if start_date is not None:
+        try:
+            parsed_start = date.fromisoformat(start_date)
+        except ValueError as exc:
+            raise typer.BadParameter("Start date must be in YYYY-MM-DD format.") from exc
+    parsed_target: date | None = None
+    if target_date is not None:
+        try:
+            parsed_target = date.fromisoformat(target_date)
+        except ValueError as exc:
+            raise typer.BadParameter("Target date must be in YYYY-MM-DD format.") from exc
+    store = _open_project_store(database)
+    try:
+        record = store.create_project(
+            ProjectRecord(
+                title=title,
+                description=description,
+                status=status,
+                start_date=parsed_start,
+                target_date=parsed_target,
+            )
+        )
+    finally:
+        store.close()
+    typer.echo(record.id)
