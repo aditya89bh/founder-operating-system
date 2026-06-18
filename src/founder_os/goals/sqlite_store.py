@@ -108,3 +108,14 @@ class SQLiteGoalStore:
         if row is None:
             return None
         return self._row_to_goal(row)
+
+    def list_goals(self) -> list[GoalRecord]:
+        """Return all stored goals, newest first."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            """
+            SELECT id, title, description, created_at, updated_at
+            FROM goals ORDER BY created_at DESC, id
+            """
+        )
+        return [self._row_to_goal(row) for row in cursor.fetchall()]
