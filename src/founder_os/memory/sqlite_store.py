@@ -92,3 +92,11 @@ class SQLiteMemoryStore:
         if row is None:
             return None
         return self._row_to_memory(row)
+
+    def list_memories(self) -> list[MemoryRecord]:
+        """Return all stored memories, newest first."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT id, content, created_at FROM memories ORDER BY created_at DESC, id"
+        )
+        return [self._row_to_memory(row) for row in cursor.fetchall()]
