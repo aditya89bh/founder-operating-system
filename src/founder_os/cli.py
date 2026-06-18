@@ -689,3 +689,32 @@ def review_create(
     finally:
         review_store.close()
     typer.echo(record.id)
+
+
+def _format_review(record: ReviewRecord) -> str:
+    return (
+        f"{record.id}  {record.review_date.isoformat()}  [{record.review_type.value}]  "
+        f"goals={record.active_goals}/{record.completed_goals} "
+        f"projects={record.active_projects}/{record.completed_projects} "
+        f"priorities={record.active_priorities}/{record.completed_priorities} "
+        f"decisions={record.decision_count} memories={record.memory_count}"
+    )
+
+
+@review_app.command("list")
+def review_list(
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the review SQLite database.")
+    ] = DEFAULT_REVIEW_DB_PATH,
+) -> None:
+    """List reviews, newest first."""
+    store = _open_review_store(database)
+    try:
+        records = store.list_reviews()
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No reviews found.")
+        return
+    for record in records:
+        typer.echo(_format_review(record))
