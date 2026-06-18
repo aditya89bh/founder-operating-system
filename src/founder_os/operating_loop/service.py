@@ -10,6 +10,7 @@ direct reads.
 
 from __future__ import annotations
 
+from founder_os.decisions.store import DecisionStore
 from founder_os.goals.store import GoalStore
 from founder_os.models import GoalStatus, PriorityStatus, ProjectStatus
 from founder_os.priorities.store import PriorityStore
@@ -38,3 +39,10 @@ def count_active_priorities(priority_store: PriorityStore) -> int:
         for priority in priority_store.list_priorities()
         if priority.status is PriorityStatus.ACTIVE
     )
+
+
+def count_recent_decisions(
+    decision_store: DecisionStore, *, limit: int = DEFAULT_RECENT_LIMIT
+) -> int:
+    """Return the number of recent decisions, capped at the ``limit`` most recent."""
+    return len(decision_store.list_decisions()[:limit])
