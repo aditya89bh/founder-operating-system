@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS goals (
     title TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     timeframe TEXT NOT NULL DEFAULT 'quarterly',
+    status TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 )
@@ -72,14 +73,16 @@ class SQLiteGoalStore:
         connection = self._require_connection()
         connection.execute(
             """
-            INSERT INTO goals (id, title, description, timeframe, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO goals
+                (id, title, description, timeframe, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 goal.id,
                 goal.title,
                 goal.description,
                 goal.timeframe.value,
+                goal.status.value,
                 goal.created_at.isoformat(),
                 goal.updated_at.isoformat(),
             ),
@@ -93,6 +96,7 @@ class SQLiteGoalStore:
             title=row["title"],
             description=row["description"],
             timeframe=row["timeframe"],
+            status=row["status"],
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
         )
@@ -102,7 +106,7 @@ class SQLiteGoalStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, timeframe, created_at, updated_at
+            SELECT id, title, description, timeframe, status, created_at, updated_at
             FROM goals WHERE id = ?
             """,
             (goal_id,),
@@ -117,7 +121,7 @@ class SQLiteGoalStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, timeframe, created_at, updated_at
+            SELECT id, title, description, timeframe, status, created_at, updated_at
             FROM goals ORDER BY created_at DESC, id
             """
         )

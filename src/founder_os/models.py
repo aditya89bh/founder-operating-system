@@ -99,8 +99,9 @@ class PriorityRecord(BaseModel):
 class GoalStatus(StrEnum):
     """Lifecycle states for a goal."""
 
+    PLANNED = "planned"
     ACTIVE = "active"
-    ACHIEVED = "achieved"
+    COMPLETED = "completed"
     ABANDONED = "abandoned"
 
 
