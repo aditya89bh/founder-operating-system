@@ -21,4 +21,15 @@ def render_status_report(snapshot: FounderSnapshot) -> str:
         f"  Recent memories:   {snapshot.recent_memory_count}",
         f"  Latest review:     {review}",
     ]
+    health = snapshot.health
+    indicators = (
+        ("No active goals", health.no_active_goals),
+        ("No active projects", health.no_active_projects),
+        ("No active priorities", health.no_active_priorities),
+        ("No recent reviews", health.no_recent_reviews),
+    )
+    lines.append("  Health:")
+    for label, raised in indicators:
+        marker = "!" if raised else "-"
+        lines.append(f"    [{marker}] {label}: {'yes' if raised else 'no'}")
     return "\n".join(lines)
