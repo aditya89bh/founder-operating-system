@@ -86,6 +86,15 @@ class PriorityRecord(BaseModel):
     created_at: datetime = Field(default_factory=_utc_now)
     updated_at: datetime = Field(default_factory=_utc_now)
 
+    @property
+    def score(self) -> float:
+        """Deterministic priority score: ``(urgency * importance) / effort``.
+
+        A higher score means the priority deserves attention sooner. ``effort``
+        is constrained to be at least ``1``, so the result is always defined.
+        """
+        return (self.urgency * self.importance) / self.effort
+
 
 class GoalStatus(StrEnum):
     """Lifecycle states for a goal."""
