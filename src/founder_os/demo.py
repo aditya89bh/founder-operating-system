@@ -34,6 +34,9 @@ from founder_os.models import (
     ReviewRecord,
     ReviewType,
 )
+from founder_os.operating_loop.models import FounderSnapshot
+from founder_os.operating_loop.report import render_status_report
+from founder_os.operating_loop.service import build_founder_snapshot
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
 from founder_os.reviews.sqlite_store import SQLiteReviewStore
@@ -370,3 +373,20 @@ def load_demo_dataset(stores: DemoStores) -> None:
         stores.memories.add_memory(memory)
     for review in demo_reviews():
         stores.reviews.create_review(review)
+
+
+def demo_snapshot(stores: DemoStores) -> FounderSnapshot:
+    """Build the operating-loop snapshot for the loaded demo ``stores``."""
+    return build_founder_snapshot(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memories,
+        review_store=stores.reviews,
+    )
+
+
+def render_snapshot_demo(stores: DemoStores) -> str:
+    """Render the demo operating-loop status report as plain text."""
+    return render_status_report(demo_snapshot(stores))
