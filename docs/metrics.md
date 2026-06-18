@@ -5,15 +5,15 @@ verifiable counts; reproduce them with the commands listed below.
 
 | Metric | Count |
 | --- | --- |
-| Tests | 111 |
+| Tests | 123 |
 | Source files (`src/founder_os`) | 37 |
-| Test files (`tests`) | 13 |
+| Test files (`tests`) | 15 |
 | CLI commands | 22 |
 | CLI command groups | 8 |
 | Engines | 6 |
 | Integration subsystems | 3 |
 | Example modules (`examples`) | 5 |
-| Documentation pages (`docs`) | 12 |
+| Documentation pages (`docs`) | 13 |
 
 ## CLI commands
 

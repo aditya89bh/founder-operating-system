@@ -46,9 +46,7 @@ def generate_snapshot(
     return ReviewSnapshot(
         active_goals=sum(1 for goal in goals if goal.status is GoalStatus.ACTIVE),
         completed_goals=sum(1 for goal in goals if goal.status is GoalStatus.COMPLETED),
-        active_projects=sum(
-            1 for project in projects if project.status is ProjectStatus.ACTIVE
-        ),
+        active_projects=sum(1 for project in projects if project.status is ProjectStatus.ACTIVE),
         completed_projects=sum(
             1 for project in projects if project.status is ProjectStatus.COMPLETED
         ),
