@@ -147,5 +147,6 @@ class ProjectRecord(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10_000)
     status: ProjectStatus = ProjectStatus.PLANNED
+    start_date: date | None = None
     created_at: datetime = Field(default_factory=_utc_now)
     updated_at: datetime = Field(default_factory=_utc_now)
