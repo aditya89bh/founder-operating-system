@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pytest
 
+from founder_os.insights.models import HistoricalInsights
+from founder_os.insights.report import render_insights_report
 from founder_os.insights.service import generate_insights
 from founder_os.models import ReviewRecord
 from founder_os.reviews.sqlite_store import SQLiteReviewStore
@@ -129,3 +131,26 @@ def test_growth_ignores_insertion_order(review_store: SQLiteReviewStore) -> None
     assert insights.oldest_review_date == date(2026, 1, 1)
     assert insights.newest_review_date == date(2026, 6, 1)
     assert insights.decision_growth == 15
+
+
+def test_render_report_with_reviews(review_store: SQLiteReviewStore) -> None:
+    review_store.create_review(_make_review(date(2026, 1, 1), active_goals=1, memory_count=30))
+    review_store.create_review(_make_review(date(2026, 6, 1), active_goals=5, memory_count=10))
+    insights = generate_insights(review_store)
+
+    report = render_insights_report(insights)
+
+    assert "Historical insights" in report
+    assert "Reviews recorded: 2" in report
+    assert "Review range:     2026-01-01 -> 2026-06-01" in report
+    assert "Goals:      +4" in report
+    assert "Memories:   -20" in report
+
+
+def test_render_report_for_empty_history() -> None:
+    report = render_insights_report(HistoricalInsights())
+
+    assert "Reviews recorded: 0" in report
+    assert "Review range:     no reviews recorded" in report
+    assert "Goals:      +0" in report
+    assert "Decisions:  +0" in report
