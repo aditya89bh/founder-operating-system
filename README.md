@@ -70,6 +70,14 @@ capturing historical snapshots of where everything stands.
 
 ## Architecture overview
 
+![Founder Operating System architecture](docs/images/architecture.png)
+
+The Founder Operating System is organized in three layers: a Typer CLI and a set
+of typed domain models on top, six independent SQLite-backed engines in the
+middle, and an integration layer that reads across the engines to produce
+snapshots, insights, and reports. The diagram source lives in
+[docs/architecture.mmd](docs/architecture.mmd) and renders to the image above.
+
 The project uses a `src` layout with three focused modules:
 
 - `founder_os.version` — the single source of truth for the package version.
