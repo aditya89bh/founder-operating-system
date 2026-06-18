@@ -110,3 +110,75 @@ def founder_startup_scenario() -> Scenario:
             ),
         ],
     )
+
+
+def product_launch_scenario() -> Scenario:
+    """A founder planning a product launch: goal, project, and launch priorities."""
+    return Scenario(
+        name="Founder planning a product launch",
+        description=(
+            "The v1 launch is approaching. The founder lines up the launch "
+            "goal, a dedicated project, the priorities that must land first, "
+            "and the decision to defer non-essential work."
+        ),
+        goals=[
+            GoalRecord(
+                title="Launch Founder OS v1",
+                description="Ship the first public version to early founders.",
+                timeframe=GoalTimeframe.QUARTERLY,
+                target_date=date(2026, 6, 30),
+                status=GoalStatus.ACTIVE,
+            ),
+        ],
+        projects=[
+            ProjectRecord(
+                title="Demo preparation",
+                description="Build scenarios and a demo dataset for launch.",
+                status=ProjectStatus.ACTIVE,
+                start_date=date(2026, 5, 15),
+                target_date=date(2026, 6, 25),
+            ),
+            ProjectRecord(
+                title="Documentation refresh",
+                description="Make the docs launch-ready.",
+                status=ProjectStatus.ACTIVE,
+                start_date=date(2026, 5, 1),
+                target_date=date(2026, 6, 20),
+            ),
+        ],
+        priorities=[
+            PriorityRecord(
+                title="Write launch post",
+                description="Draft and publish the announcement.",
+                category="marketing",
+                urgency=5,
+                importance=4,
+                effort=2,
+                status=PriorityStatus.ACTIVE,
+            ),
+            PriorityRecord(
+                title="Improve onboarding",
+                description="Smooth the first-run experience before launch.",
+                category="product",
+                urgency=4,
+                importance=5,
+                effort=3,
+                status=PriorityStatus.ACTIVE,
+            ),
+        ],
+        decisions=[
+            DecisionRecord(
+                title="Delay the mobile application",
+                context="Limited time before the launch date.",
+                decision="Postpone the mobile app until after v1.",
+                rationale="The CLI already covers the core workflow.",
+                outcome=DecisionOutcome.PENDING,
+            ),
+        ],
+        memories=[
+            MemoryRecord(
+                content="Launch observation: clear docs drove most early signups.",
+                tags=["launch", "docs"],
+            ),
+        ],
+    )
