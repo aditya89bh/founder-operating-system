@@ -91,3 +91,37 @@ def test_goal_without_target_date_defaults_to_none(store: SQLiteGoalStore) -> No
 
     assert fetched is not None
     assert fetched.target_date is None
+
+
+def test_link_priority_to_goal_and_retrieve(store: SQLiteGoalStore) -> None:
+    goal = store.create_goal(GoalRecord(title="Reach 100 paying customers"))
+
+    store.link_priority_to_goal("priority-a", goal.id)
+    store.link_priority_to_goal("priority-b", goal.id)
+
+    assert store.get_goal_priorities(goal.id) == ["priority-a", "priority-b"]
+
+
+def test_get_goal_priorities_empty_by_default(store: SQLiteGoalStore) -> None:
+    goal = store.create_goal(GoalRecord(title="No priorities yet"))
+
+    assert store.get_goal_priorities(goal.id) == []
+
+
+def test_relinking_priority_moves_it_to_new_goal(store: SQLiteGoalStore) -> None:
+    first = store.create_goal(GoalRecord(title="First goal"))
+    second = store.create_goal(GoalRecord(title="Second goal"))
+
+    store.link_priority_to_goal("priority-a", first.id)
+    store.link_priority_to_goal("priority-a", second.id)
+
+    assert store.get_goal_priorities(first.id) == []
+    assert store.get_goal_priorities(second.id) == ["priority-a"]
+
+
+def test_deleting_goal_removes_its_priority_links(store: SQLiteGoalStore) -> None:
+    goal = store.create_goal(GoalRecord(title="Temporary goal"))
+    store.link_priority_to_goal("priority-a", goal.id)
+
+    assert store.delete_goal(goal.id) is True
+    assert store.get_goal_priorities(goal.id) == []
