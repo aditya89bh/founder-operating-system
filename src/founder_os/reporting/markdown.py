@@ -27,9 +27,22 @@ def _current_state_lines(snapshot: FounderSnapshot) -> list[str]:
     ]
 
 
+def _health_indicator_lines(snapshot: FounderSnapshot) -> list[str]:
+    health = snapshot.health
+    return [
+        f"## {ReportSection.HEALTH_INDICATORS}",
+        f"- No active goals: {str(health.no_active_goals).lower()}",
+        f"- No active projects: {str(health.no_active_projects).lower()}",
+        f"- No active priorities: {str(health.no_active_priorities).lower()}",
+        f"- No recent reviews: {str(health.no_recent_reviews).lower()}",
+    ]
+
+
 def render_markdown(report: FounderReport) -> str:
     """Render ``report`` as a Markdown document."""
     lines = ["# Founder Report"]
     lines.append("")
     lines.extend(_current_state_lines(report.snapshot))
+    lines.append("")
+    lines.extend(_health_indicator_lines(report.snapshot))
     return "\n".join(lines)
