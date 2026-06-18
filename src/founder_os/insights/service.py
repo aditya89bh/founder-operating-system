@@ -26,7 +26,9 @@ def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
     """Derive historical insights from the stored review snapshots."""
     reviews = _ordered_reviews(review_store)
     oldest = reviews[0] if reviews else None
+    newest = reviews[-1] if reviews else None
     return HistoricalInsights(
         review_count=len(reviews),
         oldest_review_date=oldest.review_date if oldest else None,
+        newest_review_date=newest.review_date if newest else None,
     )
