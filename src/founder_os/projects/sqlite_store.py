@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS projects (
     description TEXT NOT NULL DEFAULT '',
     status TEXT NOT NULL DEFAULT 'planned',
     start_date TEXT,
+    target_date TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 )
@@ -74,8 +75,9 @@ class SQLiteProjectStore:
         connection.execute(
             """
             INSERT INTO projects
-                (id, title, description, status, start_date, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, title, description, status, start_date, target_date,
+                 created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 project.id,
@@ -83,6 +85,7 @@ class SQLiteProjectStore:
                 project.description,
                 project.status.value,
                 project.start_date.isoformat() if project.start_date else None,
+                project.target_date.isoformat() if project.target_date else None,
                 project.created_at.isoformat(),
                 project.updated_at.isoformat(),
             ),
@@ -92,12 +95,14 @@ class SQLiteProjectStore:
 
     def _row_to_project(self, row: sqlite3.Row) -> ProjectRecord:
         start_date = row["start_date"]
+        target_date = row["target_date"]
         return ProjectRecord(
             id=row["id"],
             title=row["title"],
             description=row["description"],
             status=row["status"],
             start_date=date.fromisoformat(start_date) if start_date else None,
+            target_date=date.fromisoformat(target_date) if target_date else None,
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
         )
@@ -107,7 +112,8 @@ class SQLiteProjectStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, status, start_date, created_at, updated_at
+            SELECT id, title, description, status, start_date, target_date,
+                   created_at, updated_at
             FROM projects WHERE id = ?
             """,
             (project_id,),
@@ -122,7 +128,8 @@ class SQLiteProjectStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, status, start_date, created_at, updated_at
+            SELECT id, title, description, status, start_date, target_date,
+                   created_at, updated_at
             FROM projects ORDER BY created_at DESC, id
             """
         )
