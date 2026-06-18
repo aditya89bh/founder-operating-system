@@ -17,10 +17,19 @@ CREATE TABLE IF NOT EXISTS memories (
 )
 """
 
+_CREATE_MEMORY_TAGS_TABLE = """
+CREATE TABLE IF NOT EXISTS memory_tags (
+    memory_id TEXT NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
+    tag TEXT NOT NULL,
+    PRIMARY KEY (memory_id, tag)
+)
+"""
+
 
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create the memory engine tables on ``connection`` if they do not exist."""
     connection.execute(_CREATE_MEMORIES_TABLE)
+    connection.execute(_CREATE_MEMORY_TAGS_TABLE)
     connection.commit()
 
 
@@ -71,13 +80,31 @@ class SQLiteMemoryStore:
             "INSERT INTO memories (id, content, created_at) VALUES (?, ?, ?)",
             (memory.id, memory.content, memory.created_at.isoformat()),
         )
+        self._store_tags(connection, memory.id, memory.tags)
         connection.commit()
         return memory
+
+    def _store_tags(
+        self, connection: sqlite3.Connection, memory_id: str, tags: list[str]
+    ) -> None:
+        connection.executemany(
+            "INSERT OR IGNORE INTO memory_tags (memory_id, tag) VALUES (?, ?)",
+            [(memory_id, tag) for tag in tags],
+        )
+
+    def _load_tags(self, memory_id: str) -> list[str]:
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT tag FROM memory_tags WHERE memory_id = ? ORDER BY tag",
+            (memory_id,),
+        )
+        return [str(row["tag"]) for row in cursor.fetchall()]
 
     def _row_to_memory(self, row: sqlite3.Row) -> MemoryRecord:
         return MemoryRecord(
             id=row["id"],
             content=row["content"],
+            tags=self._load_tags(row["id"]),
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
