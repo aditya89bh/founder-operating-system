@@ -22,10 +22,19 @@ CREATE TABLE IF NOT EXISTS goals (
 )
 """
 
+_CREATE_GOAL_PRIORITIES_TABLE = """
+CREATE TABLE IF NOT EXISTS goal_priorities (
+    priority_id TEXT PRIMARY KEY,
+    goal_id TEXT NOT NULL,
+    FOREIGN KEY (goal_id) REFERENCES goals (id) ON DELETE CASCADE
+)
+"""
+
 
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create the goal engine tables on ``connection`` if they do not exist."""
     connection.execute(_CREATE_GOALS_TABLE)
+    connection.execute(_CREATE_GOAL_PRIORITIES_TABLE)
     connection.commit()
 
 
