@@ -423,3 +423,38 @@ def demo_report(stores: DemoStores) -> FounderReport:
 def render_report_demo(stores: DemoStores) -> str:
     """Render the demo founder report as Markdown."""
     return render_markdown(demo_report(stores))
+
+
+def run_demo() -> str:
+    """Run the full demonstration and return a single printable report.
+
+    Loads the demo dataset into temporary stores, then assembles the
+    operating-loop status, the historical insights, and the combined founder
+    report into one text document.
+    """
+    with demo_stores() as stores:
+        load_demo_dataset(stores)
+        sections = [
+            "============================================================",
+            " Founder Operating System - Demonstration",
+            "============================================================",
+            "",
+            "This demo loads a realistic dataset into temporary databases and",
+            "runs the operating loop, historical insights, and reporting engines.",
+            "",
+            "------------------------------------------------------------",
+            " 1. Operating loop status",
+            "------------------------------------------------------------",
+            render_snapshot_demo(stores),
+            "",
+            "------------------------------------------------------------",
+            " 2. Historical insights",
+            "------------------------------------------------------------",
+            render_insights_demo(stores),
+            "",
+            "------------------------------------------------------------",
+            " 3. Founder report",
+            "------------------------------------------------------------",
+            render_report_demo(stores),
+        ]
+        return "\n".join(sections)

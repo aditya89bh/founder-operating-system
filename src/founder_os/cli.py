@@ -9,6 +9,7 @@ from typing import Annotated
 import typer
 
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
+from founder_os.demo import run_demo
 from founder_os.goals.sqlite_store import SQLiteGoalStore
 from founder_os.insights.report import render_insights_report
 from founder_os.insights.service import generate_insights
@@ -111,6 +112,17 @@ def main() -> None:
 def version() -> None:
     """Print the installed Founder Operating System version."""
     typer.echo(__version__)
+
+
+@app.command()
+def demo() -> None:
+    """Run a self-contained demonstration of the whole system.
+
+    Loads a realistic dataset into temporary databases and prints the operating
+    loop status, historical insights, and combined founder report. It writes
+    nothing to your real databases.
+    """
+    typer.echo(run_demo())
 
 
 memory_app = typer.Typer(
