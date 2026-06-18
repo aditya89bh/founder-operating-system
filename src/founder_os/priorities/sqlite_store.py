@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -88,3 +89,29 @@ class SQLitePriorityStore:
         )
         connection.commit()
         return priority
+
+    def _row_to_priority(self, row: sqlite3.Row) -> PriorityRecord:
+        return PriorityRecord(
+            id=row["id"],
+            title=row["title"],
+            description=row["description"],
+            category=row["category"],
+            status=row["status"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+        )
+
+    def get_priority(self, priority_id: str) -> PriorityRecord | None:
+        """Return the priority with ``priority_id`` or ``None`` if it is absent."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            """
+            SELECT id, title, description, category, status, created_at, updated_at
+            FROM priorities WHERE id = ?
+            """,
+            (priority_id,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return self._row_to_priority(row)
