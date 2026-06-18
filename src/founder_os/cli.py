@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import Annotated
 
@@ -9,7 +10,7 @@ import typer
 
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
-from founder_os.models import DecisionRecord, MemoryRecord
+from founder_os.models import DecisionOutcome, DecisionRecord, MemoryRecord
 from founder_os.version import __version__
 
 DEFAULT_DB_PATH = Path.home() / ".founder-os" / "memory.db"
@@ -258,3 +259,35 @@ def decision_show(
     typer.echo(f"Outcome:       {record.outcome.value}")
     typer.echo(f"Outcome notes: {record.outcome_notes}")
     typer.echo(f"Review date:   {review}")
+
+
+@decision_app.command("update-outcome")
+def decision_update_outcome(
+    decision_id: Annotated[str, typer.Argument(help="Identifier of the decision to update.")],
+    outcome: Annotated[DecisionOutcome, typer.Option("--outcome", help="The reviewed outcome.")],
+    notes: Annotated[str, typer.Option("--notes", help="Notes about the outcome.")] = "",
+    review_date: Annotated[
+        str | None, typer.Option("--review-date", help="Review date in YYYY-MM-DD format.")
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DECISION_DB_PATH,
+) -> None:
+    """Record the outcome of a decision after reviewing it."""
+    parsed_review: date | None = None
+    if review_date is not None:
+        try:
+            parsed_review = date.fromisoformat(review_date)
+        except ValueError as exc:
+            raise typer.BadParameter("Review date must be in YYYY-MM-DD format.") from exc
+    store = _open_decision_store(database)
+    try:
+        record = store.update_outcome(
+            decision_id, outcome.value, outcome_notes=notes, review_date=parsed_review
+        )
+    finally:
+        store.close()
+    if record is None:
+        typer.echo(f"No decision found with id {decision_id}.")
+        raise typer.Exit(code=1)
+    typer.echo(f"Updated outcome for decision {decision_id} to {record.outcome.value}.")
