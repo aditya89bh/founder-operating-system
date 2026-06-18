@@ -32,3 +32,16 @@ class MemoryRecord(BaseModel):
     content: str = Field(min_length=1, max_length=10_000)
     tags: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=_utc_now)
+
+
+class DecisionRecord(BaseModel):
+    """A decision made by the founder, with the context and reasoning behind it."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(default_factory=_new_id)
+    title: str = Field(min_length=1, max_length=200)
+    context: str = Field(default="", max_length=10_000)
+    decision: str = Field(min_length=1, max_length=10_000)
+    rationale: str = Field(default="", max_length=10_000)
+    created_at: datetime = Field(default_factory=_utc_now)
