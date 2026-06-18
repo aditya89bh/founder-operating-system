@@ -24,6 +24,11 @@ def _utc_now() -> datetime:
     return datetime.now(tz=UTC)
 
 
+def _today() -> date:
+    """Return the current UTC date."""
+    return datetime.now(tz=UTC).date()
+
+
 class MemoryRecord(BaseModel):
     """A single captured memory: a note, fact, or observation worth keeping."""
 
@@ -151,3 +156,13 @@ class ProjectRecord(BaseModel):
     target_date: date | None = None
     created_at: datetime = Field(default_factory=_utc_now)
     updated_at: datetime = Field(default_factory=_utc_now)
+
+
+class ReviewRecord(BaseModel):
+    """A periodic review capturing a point-in-time snapshot of the system."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(default_factory=_new_id)
+    review_date: date = Field(default_factory=_today)
+    created_at: datetime = Field(default_factory=_utc_now)
