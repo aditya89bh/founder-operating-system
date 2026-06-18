@@ -306,3 +306,65 @@ def competing_priorities_scenario() -> Scenario:
             ),
         ],
     )
+
+
+def decision_learning_scenario() -> Scenario:
+    """A founder learning from previous decisions and their reviewed outcomes."""
+    return Scenario(
+        name="Founder learning from previous decisions",
+        description=(
+            "Looking back at earlier calls. Each decision has been reviewed and "
+            "its outcome recorded, and the lessons are captured as memories so "
+            "future decisions are better informed."
+        ),
+        decisions=[
+            DecisionRecord(
+                title="Open source the project",
+                context="Weighing trust against control.",
+                decision="Release under the MIT license.",
+                rationale="Openness builds trust and invites contributors.",
+                outcome=DecisionOutcome.SUCCESSFUL,
+                outcome_notes="Drove adoption and useful contributions.",
+                review_date=date(2026, 5, 1),
+            ),
+            DecisionRecord(
+                title="Build a custom editor",
+                context="Considered a bespoke note editor early on.",
+                decision="Build a custom editor before validating demand.",
+                rationale="Thought a unique editor would differentiate us.",
+                outcome=DecisionOutcome.UNSUCCESSFUL,
+                outcome_notes="Wasted weeks; users only wanted the CLI.",
+                review_date=date(2026, 3, 20),
+            ),
+            DecisionRecord(
+                title="Skip a hosted backend for v1",
+                context="Considered a sync service for the first release.",
+                decision="Ship a local-only v1 with no hosted backend.",
+                rationale="Avoids operational burden while validating demand.",
+                outcome=DecisionOutcome.MIXED,
+                outcome_notes="Simpler to ship, but some users wanted sync.",
+                review_date=date(2026, 6, 1),
+            ),
+        ],
+        memories=[
+            MemoryRecord(
+                content="Lesson: validate demand before building bespoke tooling.",
+                tags=["lessons", "decisions"],
+            ),
+            MemoryRecord(
+                content="Lesson: reviewing outcomes turns decisions into learning.",
+                tags=["lessons", "decisions"],
+            ),
+        ],
+    )
+
+
+def all_scenarios() -> list[Scenario]:
+    """Return every demo scenario in a stable, presentation-friendly order."""
+    return [
+        founder_startup_scenario(),
+        product_launch_scenario(),
+        quarterly_review_scenario(),
+        competing_priorities_scenario(),
+        decision_learning_scenario(),
+    ]
