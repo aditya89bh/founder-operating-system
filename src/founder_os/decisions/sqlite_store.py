@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from types import TracebackType
 
+from founder_os.models import DecisionRecord
+
 _CREATE_DECISIONS_TABLE = """
 CREATE TABLE IF NOT EXISTS decisions (
     id TEXT PRIMARY KEY,
@@ -56,3 +58,23 @@ class SQLiteDecisionStore:
         traceback: TracebackType | None,
     ) -> None:
         self.close()
+
+    def _require_connection(self) -> sqlite3.Connection:
+        if self._connection is None:
+            raise RuntimeError("Store is not connected; call connect() first.")
+        return self._connection
+
+    def create_decision(self, decision: DecisionRecord) -> DecisionRecord:
+        """Persist ``decision`` and return the stored record."""
+        connection = self._require_connection()
+        connection.execute(
+            "INSERT INTO decisions (id, title, decision, created_at) VALUES (?, ?, ?, ?)",
+            (
+                decision.id,
+                decision.title,
+                decision.decision,
+                decision.created_at.isoformat(),
+            ),
+        )
+        connection.commit()
+        return decision
