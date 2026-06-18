@@ -7,7 +7,7 @@ workflow logic live outside of Phase 1.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import uuid4
 
@@ -35,6 +35,16 @@ class MemoryRecord(BaseModel):
     created_at: datetime = Field(default_factory=_utc_now)
 
 
+class DecisionOutcome(StrEnum):
+    """The reviewed result of a decision."""
+
+    PENDING = "pending"
+    SUCCESSFUL = "successful"
+    UNSUCCESSFUL = "unsuccessful"
+    MIXED = "mixed"
+    ABANDONED = "abandoned"
+
+
 class DecisionRecord(BaseModel):
     """A decision made by the founder, with the context and reasoning behind it."""
 
@@ -46,6 +56,9 @@ class DecisionRecord(BaseModel):
     decision: str = Field(min_length=1, max_length=10_000)
     rationale: str = Field(default="", max_length=10_000)
     assumptions: str = Field(default="", max_length=10_000)
+    outcome: DecisionOutcome = DecisionOutcome.PENDING
+    outcome_notes: str = Field(default="", max_length=10_000)
+    review_date: date | None = None
     created_at: datetime = Field(default_factory=_utc_now)
 
 

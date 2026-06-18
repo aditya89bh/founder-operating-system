@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS decisions (
     context TEXT NOT NULL DEFAULT '',
     rationale TEXT NOT NULL DEFAULT '',
     assumptions TEXT NOT NULL DEFAULT '',
+    outcome TEXT NOT NULL DEFAULT 'pending',
+    outcome_notes TEXT NOT NULL DEFAULT '',
+    review_date TEXT,
     created_at TEXT NOT NULL
 )
 """
@@ -74,8 +77,9 @@ class SQLiteDecisionStore:
         connection.execute(
             """
             INSERT INTO decisions
-                (id, title, decision, context, rationale, assumptions, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, title, decision, context, rationale, assumptions,
+                 outcome, outcome_notes, review_date, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 decision.id,
@@ -84,6 +88,9 @@ class SQLiteDecisionStore:
                 decision.context,
                 decision.rationale,
                 decision.assumptions,
+                decision.outcome.value,
+                decision.outcome_notes,
+                decision.review_date.isoformat() if decision.review_date else None,
                 decision.created_at.isoformat(),
             ),
         )
@@ -91,6 +98,7 @@ class SQLiteDecisionStore:
         return decision
 
     def _row_to_decision(self, row: sqlite3.Row) -> DecisionRecord:
+        review_date = row["review_date"]
         return DecisionRecord(
             id=row["id"],
             title=row["title"],
@@ -98,6 +106,9 @@ class SQLiteDecisionStore:
             context=row["context"],
             rationale=row["rationale"],
             assumptions=row["assumptions"],
+            outcome=row["outcome"],
+            outcome_notes=row["outcome_notes"],
+            review_date=date.fromisoformat(review_date) if review_date else None,
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
@@ -106,7 +117,8 @@ class SQLiteDecisionStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, decision, context, rationale, assumptions, created_at
+            SELECT id, title, decision, context, rationale, assumptions,
+                   outcome, outcome_notes, review_date, created_at
             FROM decisions WHERE id = ?
             """,
             (decision_id,),
@@ -121,7 +133,8 @@ class SQLiteDecisionStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, decision, context, rationale, assumptions, created_at
+            SELECT id, title, decision, context, rationale, assumptions,
+                   outcome, outcome_notes, review_date, created_at
             FROM decisions ORDER BY created_at DESC, id
             """
         )
