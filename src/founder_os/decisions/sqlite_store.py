@@ -107,3 +107,10 @@ class SQLiteDecisionStore:
             "SELECT id, title, decision, created_at FROM decisions ORDER BY created_at DESC, id"
         )
         return [self._row_to_decision(row) for row in cursor.fetchall()]
+
+    def delete_decision(self, decision_id: str) -> bool:
+        """Delete the decision with ``decision_id``; return ``True`` if a row was removed."""
+        connection = self._require_connection()
+        cursor = connection.execute("DELETE FROM decisions WHERE id = ?", (decision_id,))
+        connection.commit()
+        return cursor.rowcount > 0
