@@ -23,6 +23,7 @@ from founder_os.models import (
     ProjectRecord,
     ProjectStatus,
     ReviewRecord,
+    ReviewType,
 )
 
 
@@ -179,6 +180,64 @@ def product_launch_scenario() -> Scenario:
             MemoryRecord(
                 content="Launch observation: clear docs drove most early signups.",
                 tags=["launch", "docs"],
+            ),
+        ],
+    )
+
+
+def quarterly_review_scenario() -> Scenario:
+    """A founder reviewing quarterly progress across recorded reviews."""
+    return Scenario(
+        name="Founder reviewing quarterly progress",
+        description=(
+            "The quarter is closing. The founder looks back across the weekly "
+            "and monthly reviews captured so far and records a quarterly review "
+            "snapshot of where the system stands."
+        ),
+        goals=[
+            GoalRecord(
+                title="Reach 100 users",
+                description="Grow to 100 active founders this quarter.",
+                timeframe=GoalTimeframe.QUARTERLY,
+                target_date=date(2026, 9, 30),
+                status=GoalStatus.ACTIVE,
+            ),
+        ],
+        reviews=[
+            ReviewRecord(
+                review_date=date(2026, 4, 6),
+                review_type=ReviewType.WEEKLY,
+                notes="Steady progress; onboarding still rough.",
+                active_goals=2,
+                active_projects=2,
+                active_priorities=3,
+                decision_count=3,
+                memory_count=4,
+            ),
+            ReviewRecord(
+                review_date=date(2026, 5, 4),
+                review_type=ReviewType.MONTHLY,
+                notes="Engines stabilizing; docs catching up.",
+                active_goals=2,
+                completed_goals=1,
+                active_projects=2,
+                completed_projects=1,
+                active_priorities=3,
+                decision_count=4,
+                memory_count=5,
+            ),
+            ReviewRecord(
+                review_date=date(2026, 6, 30),
+                review_type=ReviewType.QUARTERLY,
+                notes="Quarter close: launch-ready and growing.",
+                active_goals=2,
+                completed_goals=1,
+                active_projects=2,
+                completed_projects=1,
+                active_priorities=3,
+                completed_priorities=1,
+                decision_count=5,
+                memory_count=6,
             ),
         ],
     )
