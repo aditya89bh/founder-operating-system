@@ -202,3 +202,30 @@ def decision_create(
     finally:
         store.close()
     typer.echo(record.id)
+
+
+def _format_decision(record: DecisionRecord) -> str:
+    review = f" review={record.review_date.isoformat()}" if record.review_date else ""
+    return (
+        f"{record.id}  {record.created_at.isoformat()}  "
+        f"[{record.outcome.value}]{review}  {record.title}"
+    )
+
+
+@decision_app.command("list")
+def decision_list(
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DECISION_DB_PATH,
+) -> None:
+    """List recorded decisions, newest first."""
+    store = _open_decision_store(database)
+    try:
+        records = store.list_decisions()
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No decisions found.")
+        return
+    for record in records:
+        typer.echo(_format_decision(record))
