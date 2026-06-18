@@ -79,6 +79,7 @@ class PriorityRecord(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10_000)
     category: str = Field(default="", max_length=200)
+    urgency: int = Field(default=3, ge=1, le=5)
     status: PriorityStatus = PriorityStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
     updated_at: datetime = Field(default_factory=_utc_now)
