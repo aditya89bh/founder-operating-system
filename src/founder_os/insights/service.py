@@ -41,4 +41,5 @@ def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
         decision_growth=(
             (newest.decision_count - oldest.decision_count) if oldest and newest else 0
         ),
+        memory_growth=((newest.memory_count - oldest.memory_count) if oldest and newest else 0),
     )
