@@ -459,3 +459,30 @@ def goal_create(
     finally:
         store.close()
     typer.echo(record.id)
+
+
+def _format_goal(record: GoalRecord) -> str:
+    target = record.target_date.isoformat() if record.target_date else "-"
+    return (
+        f"{record.id}  [{record.timeframe.value}/{record.status.value}]  "
+        f"target={target}  {record.title}"
+    )
+
+
+@goal_app.command("list")
+def goal_list(
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_GOAL_DB_PATH,
+) -> None:
+    """List goals, newest first."""
+    store = _open_goal_store(database)
+    try:
+        records = store.list_goals()
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No goals found.")
+        return
+    for record in records:
+        typer.echo(_format_goal(record))
