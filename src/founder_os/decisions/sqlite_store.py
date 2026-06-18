@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -78,3 +79,23 @@ class SQLiteDecisionStore:
         )
         connection.commit()
         return decision
+
+    def _row_to_decision(self, row: sqlite3.Row) -> DecisionRecord:
+        return DecisionRecord(
+            id=row["id"],
+            title=row["title"],
+            decision=row["decision"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+        )
+
+    def get_decision(self, decision_id: str) -> DecisionRecord | None:
+        """Return the decision with ``decision_id`` or ``None`` if it is absent."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT id, title, decision, created_at FROM decisions WHERE id = ?",
+            (decision_id,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return self._row_to_decision(row)
