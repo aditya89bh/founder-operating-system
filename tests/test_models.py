@@ -13,6 +13,7 @@ from founder_os.models import (
     GoalStatus,
     MemoryRecord,
     PriorityRecord,
+    PriorityStatus,
     ProjectRecord,
     ProjectStatus,
 )
@@ -43,10 +44,10 @@ def test_decision_record_valid_creation() -> None:
 
 
 def test_priority_record_valid_creation() -> None:
-    record = PriorityRecord(title="Ship onboarding revamp", rank=1)
+    record = PriorityRecord(title="Ship onboarding revamp")
 
     assert record.title == "Ship onboarding revamp"
-    assert record.rank == 1
+    assert record.status is PriorityStatus.ACTIVE
 
 
 def test_goal_record_valid_creation() -> None:
@@ -90,9 +91,9 @@ def test_decision_record_rejects_empty_title() -> None:
         DecisionRecord(title="", decision="Use Postgres.")
 
 
-def test_priority_record_rejects_non_positive_rank() -> None:
+def test_priority_record_rejects_invalid_status() -> None:
     with pytest.raises(ValidationError):
-        PriorityRecord(title="Refine pricing", rank=0)
+        PriorityRecord(title="Refine pricing", status="paused")
 
 
 def test_goal_record_rejects_invalid_status() -> None:

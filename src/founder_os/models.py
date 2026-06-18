@@ -62,15 +62,26 @@ class DecisionRecord(BaseModel):
     created_at: datetime = Field(default_factory=_utc_now)
 
 
+class PriorityStatus(StrEnum):
+    """Lifecycle states for a priority."""
+
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    DROPPED = "dropped"
+
+
 class PriorityRecord(BaseModel):
-    """A ranked priority that orders where the founder's attention should go."""
+    """A priority the founder may act on, with deterministic ranking inputs."""
 
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(default_factory=_new_id)
     title: str = Field(min_length=1, max_length=200)
-    rank: int = Field(ge=1)
+    description: str = Field(default="", max_length=10_000)
+    category: str = Field(default="", max_length=200)
+    status: PriorityStatus = PriorityStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
+    updated_at: datetime = Field(default_factory=_utc_now)
 
 
 class GoalStatus(StrEnum):

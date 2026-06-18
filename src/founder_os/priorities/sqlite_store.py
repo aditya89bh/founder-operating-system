@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from types import TracebackType
 
+from founder_os.models import PriorityRecord
+
 _CREATE_PRIORITIES_TABLE = """
 CREATE TABLE IF NOT EXISTS priorities (
     id TEXT PRIMARY KEY,
@@ -59,3 +61,30 @@ class SQLitePriorityStore:
         traceback: TracebackType | None,
     ) -> None:
         self.close()
+
+    def _require_connection(self) -> sqlite3.Connection:
+        if self._connection is None:
+            raise RuntimeError("Store is not connected; call connect() first.")
+        return self._connection
+
+    def create_priority(self, priority: PriorityRecord) -> PriorityRecord:
+        """Persist ``priority`` and return the stored record."""
+        connection = self._require_connection()
+        connection.execute(
+            """
+            INSERT INTO priorities
+                (id, title, description, category, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                priority.id,
+                priority.title,
+                priority.description,
+                priority.category,
+                priority.status.value,
+                priority.created_at.isoformat(),
+                priority.updated_at.isoformat(),
+            ),
+        )
+        connection.commit()
+        return priority
