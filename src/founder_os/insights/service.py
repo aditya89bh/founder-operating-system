@@ -32,4 +32,7 @@ def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
         oldest_review_date=oldest.review_date if oldest else None,
         newest_review_date=newest.review_date if newest else None,
         goal_growth=(newest.active_goals - oldest.active_goals) if oldest and newest else 0,
+        project_growth=(
+            (newest.active_projects - oldest.active_projects) if oldest and newest else 0
+        ),
     )
