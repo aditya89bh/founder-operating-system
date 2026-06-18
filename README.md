@@ -47,6 +47,14 @@ Quality is enforced with Ruff (linting), MyPy in strict mode (typing), and Pytes
 (tests), all run in CI. See [docs/architecture.md](docs/architecture.md) for a
 deeper description of the domain model, module boundaries, and design principles.
 
+### Memory engine
+
+The memory engine (`founder_os.memory`) provides durable storage and retrieval
+for memories, backed by SQLite. It defines a `MemoryStore` protocol and a
+`SQLiteMemoryStore` implementation supporting create, retrieve, list, tag
+filtering, keyword search, and delete. See
+[docs/memory_engine.md](docs/memory_engine.md) for full details.
+
 ## Installation
 
 Requires Python 3.11 or newer.
@@ -65,6 +73,15 @@ Check the installed version through the CLI:
 
 ```bash
 founder-os version
+```
+
+Capture and retrieve memories:
+
+```bash
+founder-os memory add "Closed the seed round" --tag fundraising
+founder-os memory list
+founder-os memory search "seed"
+founder-os memory delete <memory-id>
 ```
 
 Use the domain models directly in Python:
@@ -91,11 +108,12 @@ pytest
 
 ## Roadmap
 
-- **Phase 1 (current): Foundation.** Typed domain models, a CLI skeleton with a
-  version command, tooling (Ruff, MyPy strict, Pytest), CI, and documentation.
-- **Future phases.** Persistence, memory retrieval and search, decision workflows,
-  priority scoring, goal and project tracking, reviews, and dashboards. These are
-  intentionally out of scope for Phase 1.
+- **Phase 1: Foundation.** Typed domain models, a CLI skeleton with a version
+  command, tooling (Ruff, MyPy strict, Pytest), CI, and documentation.
+- **Phase 2 (current): Memory engine.** SQLite-backed storage and retrieval for
+  memories, with tag filtering, keyword search, and a `memory` CLI command group.
+- **Future phases.** Decision workflows, priority scoring, goal and project
+  tracking, reviews, and dashboards. These remain out of scope for now.
 
 ## License
 
