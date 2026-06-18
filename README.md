@@ -142,6 +142,25 @@ Markdown and JSON, both carrying identical information. The `founder-os report
 markdown` and `founder-os report json` commands produce it. See
 [docs/founder_reports.md](docs/founder_reports.md) for full details.
 
+### Examples and scenarios
+
+The `examples/` package ships a realistic, deterministic demo dataset and five
+founder scenarios that demonstrate the whole system end to end — starting a
+company, planning a launch, reviewing a quarter, handling competing priorities,
+and learning from past decisions. It adds no new behavior; it loads demo records
+into the existing engines and reads them back through the operating loop,
+insights, and reporting subsystems. A single call assembles a full report:
+
+```python
+from examples.walkthrough import render_walkthrough_markdown
+
+print(render_walkthrough_markdown())
+```
+
+The committed [examples/sample_report.md](examples/sample_report.md) is the exact
+output of that walkthrough. See [docs/examples.md](docs/examples.md) for the full
+tour of the dataset, scenarios, and matching CLI workflows.
+
 Requires Python 3.11 or newer.
 
 ```bash
@@ -274,9 +293,12 @@ pytest
 - **Phase 9: Historical insights.** Deterministic growth and date-range reporting
   derived only from stored review snapshots, exposed through the `founder-os
   insights report` command.
-- **Phase 10 (current): Founder report system.** Combines the operating-loop
-  snapshot and historical insights into a single deterministic report exported to
-  Markdown and JSON, via the `founder-os report` command group.
+- **Phase 10: Founder report system.** Combines the operating-loop snapshot and
+  historical insights into a single deterministic report exported to Markdown and
+  JSON, via the `founder-os report` command group.
+- **Phase 11 (current): Founder scenarios and demo dataset.** A deterministic
+  demo dataset and five end-to-end founder scenarios in the `examples/` package,
+  with a walkthrough, matching CLI workflows, and a sample report.
 - **Future phases.** Dashboards and analytics. These remain out of scope for now.
 
 ## License
