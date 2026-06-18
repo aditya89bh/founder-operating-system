@@ -35,4 +35,7 @@ def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
         project_growth=(
             (newest.active_projects - oldest.active_projects) if oldest and newest else 0
         ),
+        priority_growth=(
+            (newest.active_priorities - oldest.active_priorities) if oldest and newest else 0
+        ),
     )
