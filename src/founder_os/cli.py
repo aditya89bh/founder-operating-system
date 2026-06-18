@@ -14,6 +14,11 @@ app = typer.Typer(
 )
 
 
+@app.callback()
+def main() -> None:
+    """Founder Operating System command-line interface."""
+
+
 @app.command()
 def version() -> None:
     """Print the installed Founder Operating System version."""

@@ -7,8 +7,8 @@ workflow logic live outside of Phase 1.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,7 +21,7 @@ def _new_id() -> str:
 
 def _utc_now() -> datetime:
     """Return the current timezone-aware UTC timestamp."""
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 class MemoryRecord(BaseModel):
@@ -59,7 +59,7 @@ class PriorityRecord(BaseModel):
     created_at: datetime = Field(default_factory=_utc_now)
 
 
-class GoalStatus(str, Enum):
+class GoalStatus(StrEnum):
     """Lifecycle states for a goal."""
 
     ACTIVE = "active"
@@ -79,7 +79,7 @@ class GoalRecord(BaseModel):
     created_at: datetime = Field(default_factory=_utc_now)
 
 
-class ProjectStatus(str, Enum):
+class ProjectStatus(StrEnum):
     """Lifecycle states for a project."""
 
     PLANNED = "planned"
