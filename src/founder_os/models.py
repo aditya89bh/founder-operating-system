@@ -145,7 +145,8 @@ class ProjectRecord(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(default_factory=_new_id)
-    name: str = Field(min_length=1, max_length=200)
+    title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10_000)
     status: ProjectStatus = ProjectStatus.PLANNED
     created_at: datetime = Field(default_factory=_utc_now)
+    updated_at: datetime = Field(default_factory=_utc_now)

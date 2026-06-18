@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from types import TracebackType
 
+from founder_os.models import ProjectRecord
+
 _CREATE_PROJECTS_TABLE = """
 CREATE TABLE IF NOT EXISTS projects (
     id TEXT PRIMARY KEY,
@@ -62,3 +64,22 @@ class SQLiteProjectStore:
         if self._connection is None:
             raise RuntimeError("Store is not connected; call connect() first.")
         return self._connection
+
+    def create_project(self, project: ProjectRecord) -> ProjectRecord:
+        """Persist ``project`` and return the stored record."""
+        connection = self._require_connection()
+        connection.execute(
+            """
+            INSERT INTO projects (id, title, description, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                project.id,
+                project.title,
+                project.description,
+                project.created_at.isoformat(),
+                project.updated_at.isoformat(),
+            ),
+        )
+        connection.commit()
+        return project

@@ -62,12 +62,12 @@ def test_goal_record_valid_creation() -> None:
 
 def test_project_record_valid_creation() -> None:
     record = ProjectRecord(
-        name="Onboarding revamp",
+        title="Onboarding revamp",
         description="Rebuild the first-run experience.",
         status=ProjectStatus.ACTIVE,
     )
 
-    assert record.name == "Onboarding revamp"
+    assert record.title == "Onboarding revamp"
     assert record.status is ProjectStatus.ACTIVE
 
 
@@ -101,6 +101,6 @@ def test_goal_record_rejects_invalid_status() -> None:
         GoalRecord(title="Hire a designer", status="paused")
 
 
-def test_project_record_rejects_empty_name() -> None:
+def test_project_record_rejects_empty_title() -> None:
     with pytest.raises(ValidationError):
-        ProjectRecord(name="")
+        ProjectRecord(title="")
