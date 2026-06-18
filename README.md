@@ -31,9 +31,15 @@ Phase 1 defines the foundational records the system is built on:
 - **Priority** (`PriorityRecord`) — a priority scored by urgency, importance, and effort.
 - **Goal** (`GoalRecord`) — a goal pursued over a timeframe, with priorities aligned to it.
 - **Project** (`ProjectRecord`) — a body of work that advances a goal; the layer between goals and priorities.
+- **Review** (`ReviewRecord`) — a periodic review storing a point-in-time snapshot of the whole system.
 
 Each record is a strictly validated Pydantic v2 model with an opaque identifier
 and a UTC creation timestamp.
+
+These concepts compose into a single planning chain — **Goals → Projects →
+Priorities → Decisions → Memory** — from long-term intent down to the durable
+record of what happened. The review engine sits across the whole chain,
+capturing historical snapshots of where everything stands.
 
 ## Architecture overview
 
@@ -90,7 +96,16 @@ projects to the goals they advance. It defines a `ProjectStore` protocol and a
 goal linking, and goal-project retrieval. See
 [docs/project_engine.md](docs/project_engine.md) for full details.
 
-## Installation
+### Review engine
+
+The review engine (`founder_os.reviews`) is the first cross-system component. It
+provides durable storage and retrieval for periodic reviews, backed by SQLite,
+plus a snapshot generator that reads the goal, project, priority, decision, and
+memory engines to count active and completed work and total decisions and
+memories. It defines a `ReviewStore` protocol and a `SQLiteReviewStore`
+implementation supporting create, retrieve, list, and delete. Snapshot counts are
+computed once and stored, so each review is a frozen historical record. See
+[docs/review_engine.md](docs/review_engine.md) for full details.
 
 Requires Python 3.11 or newer.
 
@@ -150,6 +165,13 @@ founder-os project create "Onboarding revamp" --status active --target-date 2026
 founder-os project list
 ```
 
+Capture a periodic review with a system snapshot:
+
+```bash
+founder-os review create --type weekly --notes "Closed the seed round; shipped onboarding."
+founder-os review list
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -186,10 +208,14 @@ pytest
 - **Phase 5: Goal engine.** SQLite-backed storage for long-term goals with
   timeframes, target dates, and goal-priority alignment, with a `goal` CLI
   command group.
-- **Phase 6 (current): Project engine.** SQLite-backed storage for projects with
-  status, start and target dates, and goal-project alignment, with a `project`
-  CLI command group.
-- **Future phases.** Reviews and dashboards. These remain out of scope for now.
+- **Phase 6: Project engine.** SQLite-backed storage for projects with status,
+  start and target dates, and goal-project alignment, with a `project` CLI
+  command group.
+- **Phase 7 (current): Review engine.** SQLite-backed storage for periodic
+  reviews with a cross-system snapshot of active and completed goals, projects,
+  and priorities plus decision and memory totals, with a `review` CLI command
+  group.
+- **Future phases.** Dashboards and analytics. These remain out of scope for now.
 
 ## License
 

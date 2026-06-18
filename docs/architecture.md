@@ -18,13 +18,15 @@ validation and is intentionally free of behavior beyond shape and validation.
 | `PriorityRecord` | A priority scored by urgency, importance, and effort.             |
 | `GoalRecord`     | A goal pursued over a timeframe, with priorities aligned to it.   |
 | `ProjectRecord`  | A body of work that advances a goal, between goals and priorities. |
+| `ReviewRecord`   | A periodic review storing a point-in-time snapshot of the system.  |
 
 Shared conventions across records:
 
 - Every record carries an opaque string `id`, generated from a UUID when omitted.
 - Every record carries a timezone-aware UTC `created_at` timestamp.
 - Models forbid unknown fields (`extra="forbid"`) so malformed input fails fast.
-- Lifecycle states (`GoalStatus`, `ProjectStatus`) are modeled as string enums.
+- Lifecycle states (`GoalStatus`, `ProjectStatus`) and categories like
+  `ReviewType` are modeled as string enums.
 
 ## Module boundaries
 
@@ -47,13 +49,39 @@ The package is split into focused modules with clear responsibilities:
 - `founder_os.projects` — the project engine: a storage protocol and its
   SQLite-backed implementation with goal-project alignment (added in Phase 6).
   See [project_engine.md](project_engine.md).
+- `founder_os.reviews` — the review engine: a storage protocol, a SQLite-backed
+  implementation, and a snapshot generator that reads the other engines (added
+  in Phase 7). See [review_engine.md](review_engine.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
-Dependencies flow in one direction. `cli` depends on `version`, `models`,
-`memory`, `decisions`, `priorities`, `goals`, and `projects`; the `memory`,
-`decisions`, `priorities`, `goals`, and `projects` engines depend on `models`;
+Dependencies flow in one direction. `cli` depends on `version`, `models`, and
+every engine; most engines depend only on `models`. The `reviews` engine is the
+first cross-system component: its snapshot generator reads from the `goals`,
+`projects`, `priorities`, `decisions`, and `memory` engines to compute counts,
+but it stores only those counts and does not hold references to other records.
 `models` is standalone. Outside of the engines' SQLite storage, the package does
 not depend on external services.
+
+## How the engines relate
+
+The engines compose into a single planning chain, from long-term intent down to
+the raw record of what happened:
+
+```
+Goals → Projects → Priorities → Decisions → Memory
+```
+
+- **Goals** define long-term objectives.
+- **Projects** are the bodies of work that advance a goal.
+- **Priorities** are the scored, near-term items that move projects forward.
+- **Decisions** capture the choices made along the way.
+- **Memory** is the durable record of notes, facts, and observations.
+
+The **review engine** sits across all of these. Rather than extending the chain,
+it observes it: when a review is created, it reads each engine and stores a
+snapshot of the active and completed counts plus the totals for decisions and
+memories. Each review is therefore a frozen, historical view of the whole system
+at a moment in time, and is never recomputed afterward.
 
 ## Design principles
 
