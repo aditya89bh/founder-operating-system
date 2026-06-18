@@ -68,3 +68,51 @@ def test_delete_priority(store: SQLitePriorityStore) -> None:
 
 def test_delete_missing_priority_returns_false(store: SQLitePriorityStore) -> None:
     assert store.delete_priority("does-not-exist") is False
+
+
+def test_score_uses_deterministic_formula() -> None:
+    record = PriorityRecord(title="Scored", urgency=4, importance=3, effort=2)
+
+    assert record.score == pytest.approx(6.0)
+
+
+def test_default_score_is_neutral() -> None:
+    record = PriorityRecord(title="Defaults")
+
+    assert record.score == pytest.approx(3.0)
+
+
+def test_rank_priorities_orders_by_score_descending(store: SQLitePriorityStore) -> None:
+    low = store.create_priority(
+        PriorityRecord(title="Low", urgency=2, importance=2, effort=4)
+    )
+    high = store.create_priority(
+        PriorityRecord(title="High", urgency=5, importance=5, effort=1)
+    )
+    mid = store.create_priority(
+        PriorityRecord(title="Mid", urgency=3, importance=3, effort=3)
+    )
+
+    ranked = store.rank_priorities()
+
+    assert [record.id for record in ranked] == [high.id, mid.id, low.id]
+    assert [round(record.score, 2) for record in ranked] == [25.0, 3.0, 1.0]
+
+
+def test_rank_priorities_excludes_inactive(store: SQLitePriorityStore) -> None:
+    active = store.create_priority(
+        PriorityRecord(title="Active", urgency=4, importance=4, effort=2)
+    )
+    store.create_priority(
+        PriorityRecord(
+            title="Completed",
+            urgency=5,
+            importance=5,
+            effort=1,
+            status=PriorityStatus.COMPLETED,
+        )
+    )
+
+    ranked = store.rank_priorities()
+
+    assert [record.id for record in ranked] == [active.id]
