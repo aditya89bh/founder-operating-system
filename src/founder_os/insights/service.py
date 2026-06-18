@@ -24,4 +24,7 @@ def _ordered_reviews(review_store: ReviewStore) -> list[ReviewRecord]:
 
 def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
     """Derive historical insights from the stored review snapshots."""
-    return HistoricalInsights()
+    reviews = _ordered_reviews(review_store)
+    return HistoricalInsights(
+        review_count=len(reviews),
+    )
