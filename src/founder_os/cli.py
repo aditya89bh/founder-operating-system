@@ -24,6 +24,7 @@ from founder_os.models import (
     ReviewRecord,
     ReviewType,
 )
+from founder_os.operating_loop.report import render_status_report
 from founder_os.operating_loop.service import build_founder_snapshot
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
@@ -765,4 +766,4 @@ def status(
         decision_store.close()
         memory_store.close()
         review_store.close()
-    typer.echo(snapshot.model_dump_json())
+    typer.echo(render_status_report(snapshot))
