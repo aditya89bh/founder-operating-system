@@ -1,0 +1,40 @@
+%% Founder Operating System - architecture
+%% Render with: mmdc -i docs/architecture.mmd -o docs/images/architecture.png
+flowchart TD
+    CLI["founder-os CLI (Typer)"]
+    Models["Domain models (Pydantic v2)"]
+
+    subgraph Engines["Engines (SQLite-backed)"]
+        Memory["Memory engine"]
+        Decisions["Decision engine"]
+        Priorities["Priority engine"]
+        Goals["Goal engine"]
+        Projects["Project engine"]
+        Reviews["Review engine"]
+    end
+
+    subgraph Integration["Integration layer"]
+        Loop["Operating loop\n(FounderSnapshot + health)"]
+        Insights["Historical insights\n(growth across reviews)"]
+        Reporting["Founder report\n(Markdown + JSON)"]
+    end
+
+    CLI --> Engines
+    CLI --> Integration
+    Models --> Engines
+
+    Goals --> Projects
+    Projects --> Priorities
+    Priorities --> Decisions
+    Decisions --> Memory
+
+    Memory --> Reviews
+    Decisions --> Reviews
+    Priorities --> Reviews
+    Goals --> Reviews
+    Projects --> Reviews
+
+    Engines --> Loop
+    Reviews --> Insights
+    Loop --> Reporting
+    Insights --> Reporting
