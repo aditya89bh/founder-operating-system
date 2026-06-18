@@ -351,3 +351,37 @@ def priority_create(
     finally:
         store.close()
     typer.echo(record.id)
+
+
+def _format_priority(record: PriorityRecord) -> str:
+    return (
+        f"{record.id}  score={record.score:.2f}  "
+        f"[u{record.urgency}/i{record.importance}/e{record.effort}]  "
+        f"{record.status.value}  {record.title}"
+    )
+
+
+@priority_app.command("list")
+def priority_list(
+    ranked: Annotated[
+        bool,
+        typer.Option(
+            "--ranked/--all",
+            help="Rank active priorities by score (default) or list all, newest first.",
+        ),
+    ] = True,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_PRIORITY_DB_PATH,
+) -> None:
+    """List priorities, ranked by score (default) or newest first."""
+    store = _open_priority_store(database)
+    try:
+        records = store.rank_priorities() if ranked else store.list_priorities()
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No priorities found.")
+        return
+    for record in records:
+        typer.echo(_format_priority(record))
