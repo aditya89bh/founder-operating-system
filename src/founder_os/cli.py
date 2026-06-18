@@ -229,3 +229,32 @@ def decision_list(
         return
     for record in records:
         typer.echo(_format_decision(record))
+
+
+@decision_app.command("show")
+def decision_show(
+    decision_id: Annotated[str, typer.Argument(help="Identifier of the decision to show.")],
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DECISION_DB_PATH,
+) -> None:
+    """Show the full details of a single decision."""
+    store = _open_decision_store(database)
+    try:
+        record = store.get_decision(decision_id)
+    finally:
+        store.close()
+    if record is None:
+        typer.echo(f"No decision found with id {decision_id}.")
+        raise typer.Exit(code=1)
+    review = record.review_date.isoformat() if record.review_date else "-"
+    typer.echo(f"Id:            {record.id}")
+    typer.echo(f"Title:         {record.title}")
+    typer.echo(f"Created:       {record.created_at.isoformat()}")
+    typer.echo(f"Context:       {record.context}")
+    typer.echo(f"Decision:      {record.decision}")
+    typer.echo(f"Rationale:     {record.rationale}")
+    typer.echo(f"Assumptions:   {record.assumptions}")
+    typer.echo(f"Outcome:       {record.outcome.value}")
+    typer.echo(f"Outcome notes: {record.outcome_notes}")
+    typer.echo(f"Review date:   {review}")
