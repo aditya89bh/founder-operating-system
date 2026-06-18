@@ -104,6 +104,15 @@ class GoalStatus(StrEnum):
     ABANDONED = "abandoned"
 
 
+class GoalTimeframe(StrEnum):
+    """The horizon a goal is pursued over."""
+
+    YEARLY = "yearly"
+    QUARTERLY = "quarterly"
+    MONTHLY = "monthly"
+    WEEKLY = "weekly"
+
+
 class GoalRecord(BaseModel):
     """A goal the founder is working toward over a meaningful horizon."""
 
@@ -112,6 +121,7 @@ class GoalRecord(BaseModel):
     id: str = Field(default_factory=_new_id)
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10_000)
+    timeframe: GoalTimeframe = GoalTimeframe.QUARTERLY
     status: GoalStatus = GoalStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
     updated_at: datetime = Field(default_factory=_utc_now)
