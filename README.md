@@ -1,7 +1,34 @@
 # Founder Operating System
 
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Typing](https://img.shields.io/badge/mypy-strict-blue)
+![Lint](https://img.shields.io/badge/lint-ruff-orange)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+
 A personal operating system for founders that brings memory, decisions, tasks,
 priorities, goals, projects, and reviews into one coherent system.
+
+## Quick start
+
+Get from zero to a full founder report in under a minute:
+
+```bash
+git clone https://github.com/aditya89bh/founder-operating-system.git
+cd founder-operating-system
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+
+# See the whole system in action against a realistic dataset:
+founder-os demo
+```
+
+The `founder-os demo` command loads a realistic dataset into temporary databases
+and prints the operating loop status, historical insights, and a combined
+founder report. It writes nothing to your real databases, so it is safe to run
+any time. When you are ready to use it for real, start with `founder-os --help`
+and the [demo walkthrough](#demo-walkthrough) below.
 
 ## Vision
 
