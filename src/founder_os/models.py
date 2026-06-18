@@ -77,3 +77,25 @@ class GoalRecord(BaseModel):
     description: str = Field(default="", max_length=10_000)
     status: GoalStatus = GoalStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
+
+
+class ProjectStatus(str, Enum):
+    """Lifecycle states for a project."""
+
+    PLANNED = "planned"
+    ACTIVE = "active"
+    PAUSED = "paused"
+    COMPLETED = "completed"
+    ARCHIVED = "archived"
+
+
+class ProjectRecord(BaseModel):
+    """A project: a concrete body of work that advances one or more goals."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(default_factory=_new_id)
+    name: str = Field(min_length=1, max_length=200)
+    description: str = Field(default="", max_length=10_000)
+    status: ProjectStatus = ProjectStatus.PLANNED
+    created_at: datetime = Field(default_factory=_utc_now)
