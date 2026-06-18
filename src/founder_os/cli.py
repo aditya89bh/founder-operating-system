@@ -2,9 +2,24 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Annotated
+
 import typer
 
+from founder_os.memory.sqlite_store import SQLiteMemoryStore
+from founder_os.models import MemoryRecord
 from founder_os.version import __version__
+
+DEFAULT_DB_PATH = Path.home() / ".founder-os" / "memory.db"
+
+
+def _open_store(database: Path) -> SQLiteMemoryStore:
+    """Open a connected SQLite memory store at ``database``."""
+    database.parent.mkdir(parents=True, exist_ok=True)
+    store = SQLiteMemoryStore(database)
+    store.connect()
+    return store
 
 app = typer.Typer(
     name="founder-os",
@@ -37,3 +52,23 @@ def memory() -> None:
 
 
 app.add_typer(memory_app, name="memory")
+
+
+@memory_app.command("add")
+def memory_add(
+    content: Annotated[str, typer.Argument(help="The memory text to store.")],
+    tag: Annotated[
+        list[str] | None,
+        typer.Option("--tag", "-t", help="Attach a tag to the memory; repeatable."),
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DB_PATH,
+) -> None:
+    """Add a new memory and print its identifier."""
+    store = _open_store(database)
+    try:
+        record = store.add_memory(MemoryRecord(content=content, tags=tag or []))
+    finally:
+        store.close()
+    typer.echo(record.id)
