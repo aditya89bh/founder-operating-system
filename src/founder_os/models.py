@@ -134,9 +134,8 @@ class ProjectStatus(StrEnum):
 
     PLANNED = "planned"
     ACTIVE = "active"
-    PAUSED = "paused"
     COMPLETED = "completed"
-    ARCHIVED = "archived"
+    ABANDONED = "abandoned"
 
 
 class ProjectRecord(BaseModel):

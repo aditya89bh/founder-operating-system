@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS projects (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'planned',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 )
@@ -71,13 +72,14 @@ class SQLiteProjectStore:
         connection = self._require_connection()
         connection.execute(
             """
-            INSERT INTO projects (id, title, description, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO projects (id, title, description, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 project.id,
                 project.title,
                 project.description,
+                project.status.value,
                 project.created_at.isoformat(),
                 project.updated_at.isoformat(),
             ),
@@ -90,6 +92,7 @@ class SQLiteProjectStore:
             id=row["id"],
             title=row["title"],
             description=row["description"],
+            status=row["status"],
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
         )
@@ -99,7 +102,7 @@ class SQLiteProjectStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, created_at, updated_at
+            SELECT id, title, description, status, created_at, updated_at
             FROM projects WHERE id = ?
             """,
             (project_id,),
@@ -114,7 +117,7 @@ class SQLiteProjectStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, created_at, updated_at
+            SELECT id, title, description, status, created_at, updated_at
             FROM projects ORDER BY created_at DESC, id
             """
         )
