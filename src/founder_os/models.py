@@ -114,6 +114,7 @@ class GoalRecord(BaseModel):
     description: str = Field(default="", max_length=10_000)
     status: GoalStatus = GoalStatus.ACTIVE
     created_at: datetime = Field(default_factory=_utc_now)
+    updated_at: datetime = Field(default_factory=_utc_now)
 
 
 class ProjectStatus(StrEnum):

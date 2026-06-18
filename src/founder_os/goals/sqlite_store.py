@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from types import TracebackType
 
+from founder_os.models import GoalRecord
+
 _CREATE_GOALS_TABLE = """
 CREATE TABLE IF NOT EXISTS goals (
     id TEXT PRIMARY KEY,
@@ -62,3 +64,22 @@ class SQLiteGoalStore:
         if self._connection is None:
             raise RuntimeError("Store is not connected; call connect() first.")
         return self._connection
+
+    def create_goal(self, goal: GoalRecord) -> GoalRecord:
+        """Persist ``goal`` and return the stored record."""
+        connection = self._require_connection()
+        connection.execute(
+            """
+            INSERT INTO goals (id, title, description, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                goal.id,
+                goal.title,
+                goal.description,
+                goal.created_at.isoformat(),
+                goal.updated_at.isoformat(),
+            ),
+        )
+        connection.commit()
+        return goal
