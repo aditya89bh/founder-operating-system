@@ -52,6 +52,10 @@ The package is split into focused modules with clear responsibilities:
 - `founder_os.reviews` — the review engine: a storage protocol, a SQLite-backed
   implementation, and a snapshot generator that reads the other engines (added
   in Phase 7). See [review_engine.md](review_engine.md).
+- `founder_os.operating_loop` — the Founder Operating Loop: the first integrated
+  workflow, which aggregates every engine into a single `FounderSnapshot` with
+  boolean health indicators (added in Phase 8). See
+  [founder_operating_loop.md](founder_operating_loop.md).
 - `founder_os.cli` — the Typer application and command wiring.
 
 Dependencies flow in one direction. `cli` depends on `version`, `models`, and
@@ -82,6 +86,31 @@ it observes it: when a review is created, it reads each engine and stores a
 snapshot of the active and completed counts plus the totals for decisions and
 memories. Each review is therefore a frozen, historical view of the whole system
 at a moment in time, and is never recomputed afterward.
+
+## The operating loop
+
+Phase 8 turns the collection of engines into an operating system by adding the
+Founder Operating Loop, the first workflow that reads across every engine at
+once. It models running a company as a continuous cycle:
+
+```
+Observe → Remember → Decide → Prioritize → Execute → Review → Adapt
+```
+
+- **Observe / Remember** — the memory engine captures notes and observations.
+- **Decide** — the decision engine records choices and their reasoning.
+- **Prioritize** — the priority engine ranks what deserves attention.
+- **Execute** — projects advance the goals they serve.
+- **Review** — the review engine snapshots progress over time.
+- **Adapt** — the operating loop reads the live state of every engine and
+  assembles a deterministic `FounderSnapshot` so the founder can adjust course.
+
+The loop computes active counts for goals, projects, and priorities, the number
+of recent decisions and memories (capped at a fixed recent limit), and the
+latest review date. It also derives boolean `HealthIndicators` that flag missing
+pieces (no active goals, projects, priorities, or recorded reviews). The loop
+depends on the engines' storage protocols but holds no references to their
+records — it only reads and counts, performing no scoring or recommendation.
 
 ## Design principles
 

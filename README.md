@@ -107,6 +107,20 @@ implementation supporting create, retrieve, list, and delete. Snapshot counts ar
 computed once and stored, so each review is a frozen historical record. See
 [docs/review_engine.md](docs/review_engine.md) for full details.
 
+### Founder Operating Loop
+
+The Founder Operating Loop (`founder_os.operating_loop`) is the first integrated
+workflow and the layer that turns the engines into an operating system. It reads
+across memory, decisions, priorities, goals, projects, and reviews and assembles
+a deterministic `FounderSnapshot` — active goal, project, and priority counts;
+recent decision and memory counts; the latest review date; and boolean
+`HealthIndicators` that flag missing pieces. It does no scoring or recommendation.
+The `founder-os status` command runs the loop and prints a report. See
+[docs/founder_operating_loop.md](docs/founder_operating_loop.md) for full details.
+
+The loop models running a company as a continuous cycle: **Observe → Remember →
+Decide → Prioritize → Execute → Review → Adapt.**
+
 Requires Python 3.11 or newer.
 
 ```bash
@@ -172,6 +186,12 @@ founder-os review create --type weekly --notes "Closed the seed round; shipped o
 founder-os review list
 ```
 
+See the whole system at a glance with the operating loop:
+
+```bash
+founder-os status
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -211,10 +231,12 @@ pytest
 - **Phase 6: Project engine.** SQLite-backed storage for projects with status,
   start and target dates, and goal-project alignment, with a `project` CLI
   command group.
-- **Phase 7 (current): Review engine.** SQLite-backed storage for periodic
-  reviews with a cross-system snapshot of active and completed goals, projects,
-  and priorities plus decision and memory totals, with a `review` CLI command
-  group.
+- **Phase 7: Review engine.** SQLite-backed storage for periodic reviews with a
+  cross-system snapshot of active and completed goals, projects, and priorities
+  plus decision and memory totals, with a `review` CLI command group.
+- **Phase 8 (current): Founder Operating Loop.** The first integrated workflow,
+  aggregating every engine into a deterministic `FounderSnapshot` with boolean
+  health indicators, exposed through the `founder-os status` command.
 - **Future phases.** Dashboards and analytics. These remain out of scope for now.
 
 ## License
