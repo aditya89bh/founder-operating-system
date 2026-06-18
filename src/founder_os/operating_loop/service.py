@@ -10,5 +10,13 @@ direct reads.
 
 from __future__ import annotations
 
+from founder_os.goals.store import GoalStore
+from founder_os.models import GoalStatus
+
 # The number of most-recent records treated as "recent" activity for an engine.
 DEFAULT_RECENT_LIMIT = 5
+
+
+def count_active_goals(goal_store: GoalStore) -> int:
+    """Return the number of goals currently in the active state."""
+    return sum(1 for goal in goal_store.list_goals() if goal.status is GoalStatus.ACTIVE)
