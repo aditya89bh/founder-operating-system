@@ -11,7 +11,15 @@ import typer
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
 from founder_os.goals.sqlite_store import SQLiteGoalStore
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
-from founder_os.models import DecisionOutcome, DecisionRecord, MemoryRecord, PriorityRecord
+from founder_os.models import (
+    DecisionOutcome,
+    DecisionRecord,
+    GoalRecord,
+    GoalStatus,
+    GoalTimeframe,
+    MemoryRecord,
+    PriorityRecord,
+)
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.version import __version__
 
@@ -409,3 +417,45 @@ def goal() -> None:
 
 
 app.add_typer(goal_app, name="goal")
+
+
+@goal_app.command("create")
+def goal_create(
+    title: Annotated[str, typer.Argument(help="Short title for the goal.")],
+    description: Annotated[
+        str, typer.Option("--description", help="Optional details about the goal.")
+    ] = "",
+    timeframe: Annotated[
+        GoalTimeframe, typer.Option("--timeframe", help="The horizon for the goal.")
+    ] = GoalTimeframe.QUARTERLY,
+    status: Annotated[
+        GoalStatus, typer.Option("--status", help="The goal's lifecycle state.")
+    ] = GoalStatus.ACTIVE,
+    target_date: Annotated[
+        str | None, typer.Option("--target-date", help="Target date in YYYY-MM-DD format.")
+    ] = None,
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_GOAL_DB_PATH,
+) -> None:
+    """Create a new goal and print its identifier."""
+    parsed_target: date | None = None
+    if target_date is not None:
+        try:
+            parsed_target = date.fromisoformat(target_date)
+        except ValueError as exc:
+            raise typer.BadParameter("Target date must be in YYYY-MM-DD format.") from exc
+    store = _open_goal_store(database)
+    try:
+        record = store.create_goal(
+            GoalRecord(
+                title=title,
+                description=description,
+                timeframe=timeframe,
+                target_date=parsed_target,
+                status=status,
+            )
+        )
+    finally:
+        store.close()
+    typer.echo(record.id)
