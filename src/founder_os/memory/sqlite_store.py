@@ -120,12 +120,24 @@ class SQLiteMemoryStore:
             return None
         return self._row_to_memory(row)
 
-    def list_memories(self) -> list[MemoryRecord]:
-        """Return all stored memories, newest first."""
+    def list_memories(self, *, tag: str | None = None) -> list[MemoryRecord]:
+        """Return stored memories, newest first, optionally filtered by ``tag``."""
         connection = self._require_connection()
-        cursor = connection.execute(
-            "SELECT id, content, created_at FROM memories ORDER BY created_at DESC, id"
-        )
+        if tag is None:
+            cursor = connection.execute(
+                "SELECT id, content, created_at FROM memories ORDER BY created_at DESC, id"
+            )
+        else:
+            cursor = connection.execute(
+                """
+                SELECT m.id, m.content, m.created_at
+                FROM memories AS m
+                JOIN memory_tags AS t ON t.memory_id = m.id
+                WHERE t.tag = ?
+                ORDER BY m.created_at DESC, m.id
+                """,
+                (tag,),
+            )
         return [self._row_to_memory(row) for row in cursor.fetchall()]
 
     def delete_memory(self, memory_id: str) -> bool:
