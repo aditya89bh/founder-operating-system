@@ -13,6 +13,7 @@ _CREATE_REVIEWS_TABLE = """
 CREATE TABLE IF NOT EXISTS reviews (
     id TEXT PRIMARY KEY,
     review_date TEXT NOT NULL,
+    review_type TEXT NOT NULL DEFAULT 'weekly',
     created_at TEXT NOT NULL
 )
 """
@@ -69,12 +70,13 @@ class SQLiteReviewStore:
         connection = self._require_connection()
         connection.execute(
             """
-            INSERT INTO reviews (id, review_date, created_at)
-            VALUES (?, ?, ?)
+            INSERT INTO reviews (id, review_date, review_type, created_at)
+            VALUES (?, ?, ?, ?)
             """,
             (
                 review.id,
                 review.review_date.isoformat(),
+                review.review_type.value,
                 review.created_at.isoformat(),
             ),
         )
@@ -85,6 +87,7 @@ class SQLiteReviewStore:
         return ReviewRecord(
             id=row["id"],
             review_date=date.fromisoformat(row["review_date"]),
+            review_type=row["review_type"],
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
@@ -92,7 +95,7 @@ class SQLiteReviewStore:
         """Return the review with ``review_id`` or ``None`` if it is absent."""
         connection = self._require_connection()
         cursor = connection.execute(
-            "SELECT id, review_date, created_at FROM reviews WHERE id = ?",
+            "SELECT id, review_date, review_type, created_at FROM reviews WHERE id = ?",
             (review_id,),
         )
         row = cursor.fetchone()
@@ -105,7 +108,7 @@ class SQLiteReviewStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, review_date, created_at
+            SELECT id, review_date, review_type, created_at
             FROM reviews ORDER BY review_date DESC, created_at DESC, id
             """
         )

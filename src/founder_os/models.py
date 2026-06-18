@@ -158,6 +158,14 @@ class ProjectRecord(BaseModel):
     updated_at: datetime = Field(default_factory=_utc_now)
 
 
+class ReviewType(StrEnum):
+    """The cadence a review covers."""
+
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    QUARTERLY = "quarterly"
+
+
 class ReviewRecord(BaseModel):
     """A periodic review capturing a point-in-time snapshot of the system."""
 
@@ -165,4 +173,5 @@ class ReviewRecord(BaseModel):
 
     id: str = Field(default_factory=_new_id)
     review_date: date = Field(default_factory=_today)
+    review_type: ReviewType = ReviewType.WEEKLY
     created_at: datetime = Field(default_factory=_utc_now)
