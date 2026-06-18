@@ -28,7 +28,7 @@ Phase 1 defines the foundational records the system is built on:
 
 - **Memory** (`MemoryRecord`) — a captured note, fact, or observation worth keeping.
 - **Decision** (`DecisionRecord`) — a decision with its context and rationale.
-- **Priority** (`PriorityRecord`) — a ranked priority that orders attention.
+- **Priority** (`PriorityRecord`) — a priority scored by urgency, importance, and effort.
 - **Goal** (`GoalRecord`) — a goal pursued over a meaningful horizon, with a lifecycle state.
 - **Project** (`ProjectRecord`) — a concrete body of work that advances goals.
 
@@ -62,6 +62,15 @@ retrieval, and outcome tracking for decisions, backed by SQLite. It defines a
 `DecisionStore` protocol and a `SQLiteDecisionStore` implementation supporting
 create, retrieve, list, delete, and outcome review. See
 [docs/decision_engine.md](docs/decision_engine.md) for full details.
+
+### Priority engine
+
+The priority engine (`founder_os.priorities`) provides durable storage,
+retrieval, and deterministic ranking for priorities, backed by SQLite. It defines
+a `PriorityStore` protocol and a `SQLitePriorityStore` implementation supporting
+create, retrieve, list, delete, and ranking by a transparent score of
+`(urgency * importance) / effort`. See
+[docs/priority_engine.md](docs/priority_engine.md) for full details.
 
 ## Installation
 
@@ -101,6 +110,14 @@ founder-os decision show <decision-id>
 founder-os decision update-outcome <decision-id> --outcome successful
 ```
 
+Capture and rank priorities:
+
+```bash
+founder-os priority create "Ship onboarding revamp" --urgency 5 --importance 4 --effort 2
+founder-os priority list
+founder-os priority list --all
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -129,10 +146,13 @@ pytest
   command, tooling (Ruff, MyPy strict, Pytest), CI, and documentation.
 - **Phase 2: Memory engine.** SQLite-backed storage and retrieval for memories,
   with tag filtering, keyword search, and a `memory` CLI command group.
-- **Phase 3 (current): Decision engine.** SQLite-backed storage, retrieval, and
-  outcome tracking for decisions, with a `decision` CLI command group.
-- **Future phases.** Priority scoring, goal and project tracking, reviews, and
-  dashboards. These remain out of scope for now.
+- **Phase 3: Decision engine.** SQLite-backed storage, retrieval, and outcome
+  tracking for decisions, with a `decision` CLI command group.
+- **Phase 4 (current): Priority engine.** SQLite-backed storage and deterministic
+  ranking for priorities using `(urgency * importance) / effort`, with a
+  `priority` CLI command group.
+- **Future phases.** Goal and project tracking, reviews, and dashboards. These
+  remain out of scope for now.
 
 ## License
 
