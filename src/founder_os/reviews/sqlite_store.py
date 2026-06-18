@@ -34,6 +34,8 @@ _REVIEW_COLUMNS = (
     "created_at"
 )
 
+_REVIEW_PLACEHOLDERS = ", ".join("?" for _ in _REVIEW_COLUMNS.split(","))
+
 
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create the review engine tables on ``connection`` if they do not exist."""
@@ -85,15 +87,20 @@ class SQLiteReviewStore:
         """Persist ``review`` and return the stored record."""
         connection = self._require_connection()
         connection.execute(
-            """
-            INSERT INTO reviews (id, review_date, review_type, notes, created_at)
-            VALUES (?, ?, ?, ?, ?)
-            """,
+            f"INSERT INTO reviews ({_REVIEW_COLUMNS}) VALUES ({_REVIEW_PLACEHOLDERS})",
             (
                 review.id,
                 review.review_date.isoformat(),
                 review.review_type.value,
                 review.notes,
+                review.active_goals,
+                review.completed_goals,
+                review.active_projects,
+                review.completed_projects,
+                review.active_priorities,
+                review.completed_priorities,
+                review.decision_count,
+                review.memory_count,
                 review.created_at.isoformat(),
             ),
         )
