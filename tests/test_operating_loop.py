@@ -23,7 +23,9 @@ from founder_os.models import (
     ProjectStatus,
     ReviewRecord,
 )
+from founder_os.operating_loop.report import render_status_report
 from founder_os.operating_loop.service import (
+    DEFAULT_RECENT_LIMIT,
     build_founder_snapshot,
     build_health_indicators,
     count_active_goals,
@@ -218,3 +220,84 @@ def test_snapshot_health_partial(stores: Stores) -> None:
     assert snapshot.health.no_recent_reviews is False
     assert snapshot.health.no_active_projects is True
     assert snapshot.health.no_active_priorities is True
+
+
+def _populate_full_system(stores: Stores) -> None:
+    for index in range(3):
+        stores.goals.create_goal(GoalRecord(title=f"Goal {index}", status=GoalStatus.ACTIVE))
+    stores.goals.create_goal(GoalRecord(title="Done goal", status=GoalStatus.COMPLETED))
+    for index in range(2):
+        stores.projects.create_project(
+            ProjectRecord(title=f"Project {index}", status=ProjectStatus.ACTIVE)
+        )
+    for index in range(4):
+        stores.priorities.create_priority(
+            PriorityRecord(title=f"Priority {index}", status=PriorityStatus.ACTIVE)
+        )
+    for index in range(8):
+        stores.decisions.create_decision(DecisionRecord(title=f"D{index}", decision="Decide"))
+    for index in range(8):
+        stores.memory.add_memory(MemoryRecord(content=f"Note {index}"))
+    stores.reviews.create_review(ReviewRecord(review_date=date(2026, 2, 1)))
+    stores.reviews.create_review(ReviewRecord(review_date=date(2026, 6, 10)))
+
+
+def test_full_system_snapshot_uses_default_recent_limit(stores: Stores) -> None:
+    _populate_full_system(stores)
+
+    snapshot = build_founder_snapshot(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memory,
+        review_store=stores.reviews,
+    )
+
+    assert snapshot.active_goal_count == 3
+    assert snapshot.active_project_count == 2
+    assert snapshot.active_priority_count == 4
+    assert snapshot.recent_decision_count == DEFAULT_RECENT_LIMIT
+    assert snapshot.recent_memory_count == DEFAULT_RECENT_LIMIT
+    assert snapshot.latest_review_date == date(2026, 6, 10)
+    assert snapshot.health.no_active_goals is False
+    assert snapshot.health.no_active_projects is False
+    assert snapshot.health.no_active_priorities is False
+    assert snapshot.health.no_recent_reviews is False
+
+
+def test_render_status_report_contains_all_sections(stores: Stores) -> None:
+    _populate_full_system(stores)
+    snapshot = build_founder_snapshot(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memory,
+        review_store=stores.reviews,
+    )
+
+    report = render_status_report(snapshot)
+
+    assert "Founder Operating System status" in report
+    assert "Active goals:      3" in report
+    assert "Latest review:     2026-06-10" in report
+    assert "Health:" in report
+    assert "No recent reviews: no" in report
+
+
+def test_render_status_report_marks_empty_system(stores: Stores) -> None:
+    snapshot = build_founder_snapshot(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memory,
+        review_store=stores.reviews,
+    )
+
+    report = render_status_report(snapshot)
+
+    assert "Latest review:     never" in report
+    assert "[!] No active goals: yes" in report
+    assert "[!] No recent reviews: yes" in report
