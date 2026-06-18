@@ -23,3 +23,17 @@ def main() -> None:
 def version() -> None:
     """Print the installed Founder Operating System version."""
     typer.echo(__version__)
+
+
+memory_app = typer.Typer(
+    help="Store, retrieve, search, and delete memories.",
+    no_args_is_help=True,
+)
+
+
+@memory_app.callback()
+def memory() -> None:
+    """Manage stored memories."""
+
+
+app.add_typer(memory_app, name="memory")
