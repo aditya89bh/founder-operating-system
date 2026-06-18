@@ -15,9 +15,24 @@ CREATE TABLE IF NOT EXISTS reviews (
     review_date TEXT NOT NULL,
     review_type TEXT NOT NULL DEFAULT 'weekly',
     notes TEXT NOT NULL DEFAULT '',
+    active_goals INTEGER NOT NULL DEFAULT 0,
+    completed_goals INTEGER NOT NULL DEFAULT 0,
+    active_projects INTEGER NOT NULL DEFAULT 0,
+    completed_projects INTEGER NOT NULL DEFAULT 0,
+    active_priorities INTEGER NOT NULL DEFAULT 0,
+    completed_priorities INTEGER NOT NULL DEFAULT 0,
+    decision_count INTEGER NOT NULL DEFAULT 0,
+    memory_count INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL
 )
 """
+
+_REVIEW_COLUMNS = (
+    "id, review_date, review_type, notes, "
+    "active_goals, completed_goals, active_projects, completed_projects, "
+    "active_priorities, completed_priorities, decision_count, memory_count, "
+    "created_at"
+)
 
 
 def initialize_schema(connection: sqlite3.Connection) -> None:
@@ -91,6 +106,14 @@ class SQLiteReviewStore:
             review_date=date.fromisoformat(row["review_date"]),
             review_type=row["review_type"],
             notes=row["notes"],
+            active_goals=row["active_goals"],
+            completed_goals=row["completed_goals"],
+            active_projects=row["active_projects"],
+            completed_projects=row["completed_projects"],
+            active_priorities=row["active_priorities"],
+            completed_priorities=row["completed_priorities"],
+            decision_count=row["decision_count"],
+            memory_count=row["memory_count"],
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
@@ -98,7 +121,7 @@ class SQLiteReviewStore:
         """Return the review with ``review_id`` or ``None`` if it is absent."""
         connection = self._require_connection()
         cursor = connection.execute(
-            "SELECT id, review_date, review_type, notes, created_at FROM reviews WHERE id = ?",
+            f"SELECT {_REVIEW_COLUMNS} FROM reviews WHERE id = ?",
             (review_id,),
         )
         row = cursor.fetchone()
@@ -110,8 +133,8 @@ class SQLiteReviewStore:
         """Return all stored reviews, newest first."""
         connection = self._require_connection()
         cursor = connection.execute(
-            """
-            SELECT id, review_date, review_type, notes, created_at
+            f"""
+            SELECT {_REVIEW_COLUMNS}
             FROM reviews ORDER BY review_date DESC, created_at DESC, id
             """
         )

@@ -175,4 +175,12 @@ class ReviewRecord(BaseModel):
     review_date: date = Field(default_factory=_today)
     review_type: ReviewType = ReviewType.WEEKLY
     notes: str = Field(default="", max_length=10_000)
+    active_goals: int = Field(default=0, ge=0)
+    completed_goals: int = Field(default=0, ge=0)
+    active_projects: int = Field(default=0, ge=0)
+    completed_projects: int = Field(default=0, ge=0)
+    active_priorities: int = Field(default=0, ge=0)
+    completed_priorities: int = Field(default=0, ge=0)
+    decision_count: int = Field(default=0, ge=0)
+    memory_count: int = Field(default=0, ge=0)
     created_at: datetime = Field(default_factory=_utc_now)
