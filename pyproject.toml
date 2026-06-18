@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "founder-operating-system"
+version = "0.1.0"
+description = "A personal operating system for founders combining memory, decisions, tasks, priorities, goals, projects, and reviews."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Aditya Bhatia" }]
+keywords = ["founder", "operating-system", "productivity", "decisions", "memory"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2.6",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pytest>=8.0",
+]
+
+[project.scripts]
+founder-os = "founder_os.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/founder_os"]
