@@ -42,6 +42,9 @@ from founder_os.operating_loop.report import render_status_report
 from founder_os.operating_loop.service import build_founder_snapshot
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
+from founder_os.reporting.markdown import render_markdown
+from founder_os.reporting.models import FounderReport
+from founder_os.reporting.service import build_founder_report
 from founder_os.reviews.sqlite_store import SQLiteReviewStore
 
 
@@ -403,3 +406,20 @@ def demo_insights(stores: DemoStores) -> HistoricalInsights:
 def render_insights_demo(stores: DemoStores) -> str:
     """Render the demo historical insights as plain text."""
     return render_insights_report(demo_insights(stores))
+
+
+def demo_report(stores: DemoStores) -> FounderReport:
+    """Build the combined founder report from the loaded demo ``stores``."""
+    return build_founder_report(
+        goal_store=stores.goals,
+        project_store=stores.projects,
+        priority_store=stores.priorities,
+        decision_store=stores.decisions,
+        memory_store=stores.memories,
+        review_store=stores.reviews,
+    )
+
+
+def render_report_demo(stores: DemoStores) -> str:
+    """Render the demo founder report as Markdown."""
+    return render_markdown(demo_report(stores))
