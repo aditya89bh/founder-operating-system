@@ -29,7 +29,7 @@ Phase 1 defines the foundational records the system is built on:
 - **Memory** (`MemoryRecord`) — a captured note, fact, or observation worth keeping.
 - **Decision** (`DecisionRecord`) — a decision with its context and rationale.
 - **Priority** (`PriorityRecord`) — a priority scored by urgency, importance, and effort.
-- **Goal** (`GoalRecord`) — a goal pursued over a meaningful horizon, with a lifecycle state.
+- **Goal** (`GoalRecord`) — a goal pursued over a timeframe, with priorities aligned to it.
 - **Project** (`ProjectRecord`) — a concrete body of work that advances goals.
 
 Each record is a strictly validated Pydantic v2 model with an opaque identifier
@@ -71,6 +71,15 @@ a `PriorityStore` protocol and a `SQLitePriorityStore` implementation supporting
 create, retrieve, list, delete, and ranking by a transparent score of
 `(urgency * importance) / effort`. See
 [docs/priority_engine.md](docs/priority_engine.md) for full details.
+
+### Goal engine
+
+The goal engine (`founder_os.goals`) provides durable storage and retrieval for
+long-term goals, backed by SQLite, plus the relationship storage that aligns
+priorities to the goals they serve. It defines a `GoalStore` protocol and a
+`SQLiteGoalStore` implementation supporting create, retrieve, list, delete,
+priority linking, and goal-priority retrieval. See
+[docs/goal_engine.md](docs/goal_engine.md) for full details.
 
 ## Installation
 
@@ -118,6 +127,13 @@ founder-os priority list
 founder-os priority list --all
 ```
 
+Define goals and organize priorities under them:
+
+```bash
+founder-os goal create "Reach 100 paying customers" --timeframe yearly --target-date 2026-12-31
+founder-os goal list
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -148,11 +164,14 @@ pytest
   with tag filtering, keyword search, and a `memory` CLI command group.
 - **Phase 3: Decision engine.** SQLite-backed storage, retrieval, and outcome
   tracking for decisions, with a `decision` CLI command group.
-- **Phase 4 (current): Priority engine.** SQLite-backed storage and deterministic
-  ranking for priorities using `(urgency * importance) / effort`, with a
-  `priority` CLI command group.
-- **Future phases.** Goal and project tracking, reviews, and dashboards. These
-  remain out of scope for now.
+- **Phase 4: Priority engine.** SQLite-backed storage and deterministic ranking
+  for priorities using `(urgency * importance) / effort`, with a `priority` CLI
+  command group.
+- **Phase 5 (current): Goal engine.** SQLite-backed storage for long-term goals
+  with timeframes, target dates, and goal-priority alignment, with a `goal` CLI
+  command group.
+- **Future phases.** Project tracking, reviews, and dashboards. These remain out
+  of scope for now.
 
 ## License
 
