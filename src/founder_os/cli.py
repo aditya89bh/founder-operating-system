@@ -21,12 +21,14 @@ from founder_os.models import (
     PriorityRecord,
 )
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
+from founder_os.projects.sqlite_store import SQLiteProjectStore
 from founder_os.version import __version__
 
 DEFAULT_DB_PATH = Path.home() / ".founder-os" / "memory.db"
 DEFAULT_DECISION_DB_PATH = Path.home() / ".founder-os" / "decisions.db"
 DEFAULT_PRIORITY_DB_PATH = Path.home() / ".founder-os" / "priorities.db"
 DEFAULT_GOAL_DB_PATH = Path.home() / ".founder-os" / "goals.db"
+DEFAULT_PROJECT_DB_PATH = Path.home() / ".founder-os" / "projects.db"
 
 
 def _open_store(database: Path) -> SQLiteMemoryStore:
@@ -57,6 +59,14 @@ def _open_goal_store(database: Path) -> SQLiteGoalStore:
     """Open a connected SQLite goal store at ``database``."""
     database.parent.mkdir(parents=True, exist_ok=True)
     store = SQLiteGoalStore(database)
+    store.connect()
+    return store
+
+
+def _open_project_store(database: Path) -> SQLiteProjectStore:
+    """Open a connected SQLite project store at ``database``."""
+    database.parent.mkdir(parents=True, exist_ok=True)
+    store = SQLiteProjectStore(database)
     store.connect()
     return store
 
@@ -486,3 +496,17 @@ def goal_list(
         return
     for record in records:
         typer.echo(_format_goal(record))
+
+
+project_app = typer.Typer(
+    help="Organize work into projects and align them to goals.",
+    no_args_is_help=True,
+)
+
+
+@project_app.callback()
+def project() -> None:
+    """Manage projects and the goals they advance."""
+
+
+app.add_typer(project_app, name="project")
