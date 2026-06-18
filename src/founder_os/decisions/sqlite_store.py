@@ -99,3 +99,11 @@ class SQLiteDecisionStore:
         if row is None:
             return None
         return self._row_to_decision(row)
+
+    def list_decisions(self) -> list[DecisionRecord]:
+        """Return all stored decisions, newest first."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT id, title, decision, created_at FROM decisions ORDER BY created_at DESC, id"
+        )
+        return [self._row_to_decision(row) for row in cursor.fetchall()]
