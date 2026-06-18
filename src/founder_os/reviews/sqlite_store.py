@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import date, datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -79,3 +80,22 @@ class SQLiteReviewStore:
         )
         connection.commit()
         return review
+
+    def _row_to_review(self, row: sqlite3.Row) -> ReviewRecord:
+        return ReviewRecord(
+            id=row["id"],
+            review_date=date.fromisoformat(row["review_date"]),
+            created_at=datetime.fromisoformat(row["created_at"]),
+        )
+
+    def get_review(self, review_id: str) -> ReviewRecord | None:
+        """Return the review with ``review_id`` or ``None`` if it is absent."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT id, review_date, created_at FROM reviews WHERE id = ?",
+            (review_id,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return self._row_to_review(row)
