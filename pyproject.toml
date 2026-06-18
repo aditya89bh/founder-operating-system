@@ -45,3 +45,20 @@ select = ["E", "F", "I", "N", "UP", "B", "W", "C4", "SIM"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["founder_os"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+explicit_package_bases = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+no_implicit_reexport = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
