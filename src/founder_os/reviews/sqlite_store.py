@@ -110,3 +110,10 @@ class SQLiteReviewStore:
             """
         )
         return [self._row_to_review(row) for row in cursor.fetchall()]
+
+    def delete_review(self, review_id: str) -> bool:
+        """Delete the review with ``review_id``; return ``True`` if a row was removed."""
+        connection = self._require_connection()
+        cursor = connection.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+        connection.commit()
+        return cursor.rowcount > 0
