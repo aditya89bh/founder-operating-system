@@ -101,6 +101,25 @@ def memory_list(
         typer.echo(_format_memory(record))
 
 
+@memory_app.command("delete")
+def memory_delete(
+    memory_id: Annotated[str, typer.Argument(help="Identifier of the memory to delete.")],
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_DB_PATH,
+) -> None:
+    """Delete a memory by its identifier."""
+    store = _open_store(database)
+    try:
+        deleted = store.delete_memory(memory_id)
+    finally:
+        store.close()
+    if not deleted:
+        typer.echo(f"No memory found with id {memory_id}.")
+        raise typer.Exit(code=1)
+    typer.echo(f"Deleted memory {memory_id}.")
+
+
 @memory_app.command("search")
 def memory_search(
     query: Annotated[str, typer.Argument(help="Keyword to search for in memory content.")],
