@@ -798,3 +798,17 @@ def insights_report(
     finally:
         store.close()
     typer.echo(render_insights_report(insights))
+
+
+report_app = typer.Typer(
+    help="Export a combined founder report to Markdown or JSON.",
+    no_args_is_help=True,
+)
+
+
+@report_app.callback()
+def report() -> None:
+    """Generate a deterministic founder report from the whole system."""
+
+
+app.add_typer(report_app, name="report")
