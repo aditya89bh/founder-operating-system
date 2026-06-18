@@ -10,6 +10,8 @@ import typer
 
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
 from founder_os.goals.sqlite_store import SQLiteGoalStore
+from founder_os.insights.report import render_insights_report
+from founder_os.insights.service import generate_insights
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
 from founder_os.models import (
     DecisionOutcome,
@@ -781,3 +783,18 @@ def insights() -> None:
 
 
 app.add_typer(insights_app, name="insights")
+
+
+@insights_app.command("report")
+def insights_report(
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the review SQLite database.")
+    ] = DEFAULT_REVIEW_DB_PATH,
+) -> None:
+    """Show historical insights derived from stored review snapshots."""
+    store = _open_review_store(database)
+    try:
+        insights = generate_insights(store)
+    finally:
+        store.close()
+    typer.echo(render_insights_report(insights))
