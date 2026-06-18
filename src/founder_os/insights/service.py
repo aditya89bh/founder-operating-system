@@ -9,7 +9,17 @@ reasoning.
 from __future__ import annotations
 
 from founder_os.insights.models import HistoricalInsights
+from founder_os.models import ReviewRecord
 from founder_os.reviews.store import ReviewStore
+
+
+def _ordered_reviews(review_store: ReviewStore) -> list[ReviewRecord]:
+    """Return the stored reviews ordered oldest first.
+
+    The review store lists reviews newest first, so the first element of the
+    returned list is the earliest review and the last is the most recent.
+    """
+    return list(reversed(review_store.list_reviews()))
 
 
 def generate_insights(review_store: ReviewStore) -> HistoricalInsights:
