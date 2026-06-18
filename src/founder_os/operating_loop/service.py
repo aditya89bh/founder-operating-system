@@ -16,6 +16,7 @@ from founder_os.decisions.store import DecisionStore
 from founder_os.goals.store import GoalStore
 from founder_os.memory.store import MemoryStore
 from founder_os.models import GoalStatus, PriorityStatus, ProjectStatus
+from founder_os.operating_loop.models import FounderSnapshot
 from founder_os.priorities.store import PriorityStore
 from founder_os.projects.store import ProjectStore
 from founder_os.reviews.store import ReviewStore
@@ -63,3 +64,24 @@ def latest_review_date(review_store: ReviewStore) -> date | None:
     if not reviews:
         return None
     return reviews[0].review_date
+
+
+def build_founder_snapshot(
+    *,
+    goal_store: GoalStore,
+    project_store: ProjectStore,
+    priority_store: PriorityStore,
+    decision_store: DecisionStore,
+    memory_store: MemoryStore,
+    review_store: ReviewStore,
+    recent_limit: int = DEFAULT_RECENT_LIMIT,
+) -> FounderSnapshot:
+    """Assemble a :class:`FounderSnapshot` by aggregating every engine."""
+    return FounderSnapshot(
+        active_goal_count=count_active_goals(goal_store),
+        active_project_count=count_active_projects(project_store),
+        active_priority_count=count_active_priorities(priority_store),
+        recent_decision_count=count_recent_decisions(decision_store, limit=recent_limit),
+        recent_memory_count=count_recent_memories(memory_store, limit=recent_limit),
+        latest_review_date=latest_review_date(review_store),
+    )
