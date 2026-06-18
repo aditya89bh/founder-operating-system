@@ -45,3 +45,14 @@ class DecisionRecord(BaseModel):
     decision: str = Field(min_length=1, max_length=10_000)
     rationale: str = Field(default="", max_length=10_000)
     created_at: datetime = Field(default_factory=_utc_now)
+
+
+class PriorityRecord(BaseModel):
+    """A ranked priority that orders where the founder's attention should go."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(default_factory=_new_id)
+    title: str = Field(min_length=1, max_length=200)
+    rank: int = Field(ge=1)
+    created_at: datetime = Field(default_factory=_utc_now)
