@@ -108,3 +108,14 @@ class SQLiteProjectStore:
         if row is None:
             return None
         return self._row_to_project(row)
+
+    def list_projects(self) -> list[ProjectRecord]:
+        """Return all stored projects, newest first."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            """
+            SELECT id, title, description, created_at, updated_at
+            FROM projects ORDER BY created_at DESC, id
+            """
+        )
+        return [self._row_to_project(row) for row in cursor.fetchall()]
