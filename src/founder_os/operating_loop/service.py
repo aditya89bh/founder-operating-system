@@ -16,7 +16,7 @@ from founder_os.decisions.store import DecisionStore
 from founder_os.goals.store import GoalStore
 from founder_os.memory.store import MemoryStore
 from founder_os.models import GoalStatus, PriorityStatus, ProjectStatus
-from founder_os.operating_loop.models import FounderSnapshot
+from founder_os.operating_loop.models import FounderSnapshot, HealthIndicators
 from founder_os.priorities.store import PriorityStore
 from founder_os.projects.store import ProjectStore
 from founder_os.reviews.store import ReviewStore
@@ -66,6 +66,22 @@ def latest_review_date(review_store: ReviewStore) -> date | None:
     return reviews[0].review_date
 
 
+def build_health_indicators(
+    *,
+    active_goal_count: int,
+    active_project_count: int,
+    active_priority_count: int,
+    review_date: date | None,
+) -> HealthIndicators:
+    """Derive boolean health flags from aggregated counts and the latest review."""
+    return HealthIndicators(
+        no_active_goals=active_goal_count == 0,
+        no_active_projects=active_project_count == 0,
+        no_active_priorities=active_priority_count == 0,
+        no_recent_reviews=review_date is None,
+    )
+
+
 def build_founder_snapshot(
     *,
     goal_store: GoalStore,
@@ -77,11 +93,21 @@ def build_founder_snapshot(
     recent_limit: int = DEFAULT_RECENT_LIMIT,
 ) -> FounderSnapshot:
     """Assemble a :class:`FounderSnapshot` by aggregating every engine."""
+    active_goals = count_active_goals(goal_store)
+    active_projects = count_active_projects(project_store)
+    active_priorities = count_active_priorities(priority_store)
+    review_date = latest_review_date(review_store)
     return FounderSnapshot(
-        active_goal_count=count_active_goals(goal_store),
-        active_project_count=count_active_projects(project_store),
-        active_priority_count=count_active_priorities(priority_store),
+        active_goal_count=active_goals,
+        active_project_count=active_projects,
+        active_priority_count=active_priorities,
         recent_decision_count=count_recent_decisions(decision_store, limit=recent_limit),
         recent_memory_count=count_recent_memories(memory_store, limit=recent_limit),
-        latest_review_date=latest_review_date(review_store),
+        latest_review_date=review_date,
+        health=build_health_indicators(
+            active_goal_count=active_goals,
+            active_project_count=active_projects,
+            active_priority_count=active_priorities,
+            review_date=review_date,
+        ),
     )
