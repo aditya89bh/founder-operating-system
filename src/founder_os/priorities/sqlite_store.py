@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS priorities (
     category TEXT NOT NULL DEFAULT '',
     urgency INTEGER NOT NULL DEFAULT 3,
     importance INTEGER NOT NULL DEFAULT 3,
+    effort INTEGER NOT NULL DEFAULT 3,
     status TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
@@ -76,9 +77,9 @@ class SQLitePriorityStore:
         connection.execute(
             """
             INSERT INTO priorities
-                (id, title, description, category, urgency, importance, status,
-                 created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (id, title, description, category, urgency, importance, effort,
+                 status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 priority.id,
@@ -87,6 +88,7 @@ class SQLitePriorityStore:
                 priority.category,
                 priority.urgency,
                 priority.importance,
+                priority.effort,
                 priority.status.value,
                 priority.created_at.isoformat(),
                 priority.updated_at.isoformat(),
@@ -103,6 +105,7 @@ class SQLitePriorityStore:
             category=row["category"],
             urgency=row["urgency"],
             importance=row["importance"],
+            effort=row["effort"],
             status=row["status"],
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
@@ -113,8 +116,8 @@ class SQLitePriorityStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, category, urgency, importance, status,
-                   created_at, updated_at
+            SELECT id, title, description, category, urgency, importance, effort,
+                   status, created_at, updated_at
             FROM priorities WHERE id = ?
             """,
             (priority_id,),
@@ -129,8 +132,8 @@ class SQLitePriorityStore:
         connection = self._require_connection()
         cursor = connection.execute(
             """
-            SELECT id, title, description, category, urgency, importance, status,
-                   created_at, updated_at
+            SELECT id, title, description, category, urgency, importance, effort,
+                   status, created_at, updated_at
             FROM priorities ORDER BY created_at DESC, id
             """
         )
