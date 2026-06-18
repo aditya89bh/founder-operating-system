@@ -19,6 +19,9 @@ from tempfile import TemporaryDirectory
 
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
 from founder_os.goals.sqlite_store import SQLiteGoalStore
+from founder_os.insights.models import HistoricalInsights
+from founder_os.insights.report import render_insights_report
+from founder_os.insights.service import generate_insights
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
 from founder_os.models import (
     DecisionOutcome,
@@ -390,3 +393,13 @@ def demo_snapshot(stores: DemoStores) -> FounderSnapshot:
 def render_snapshot_demo(stores: DemoStores) -> str:
     """Render the demo operating-loop status report as plain text."""
     return render_status_report(demo_snapshot(stores))
+
+
+def demo_insights(stores: DemoStores) -> HistoricalInsights:
+    """Derive historical insights from the loaded demo ``stores``."""
+    return generate_insights(stores.reviews)
+
+
+def render_insights_demo(stores: DemoStores) -> str:
+    """Render the demo historical insights as plain text."""
+    return render_insights_report(demo_insights(stores))
