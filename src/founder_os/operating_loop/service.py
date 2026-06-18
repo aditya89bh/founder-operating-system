@@ -11,7 +11,8 @@ direct reads.
 from __future__ import annotations
 
 from founder_os.goals.store import GoalStore
-from founder_os.models import GoalStatus, ProjectStatus
+from founder_os.models import GoalStatus, PriorityStatus, ProjectStatus
+from founder_os.priorities.store import PriorityStore
 from founder_os.projects.store import ProjectStore
 
 # The number of most-recent records treated as "recent" activity for an engine.
@@ -27,4 +28,13 @@ def count_active_projects(project_store: ProjectStore) -> int:
     """Return the number of projects currently in the active state."""
     return sum(
         1 for project in project_store.list_projects() if project.status is ProjectStatus.ACTIVE
+    )
+
+
+def count_active_priorities(priority_store: PriorityStore) -> int:
+    """Return the number of priorities currently in the active state."""
+    return sum(
+        1
+        for priority in priority_store.list_priorities()
+        if priority.status is PriorityStatus.ACTIVE
     )
