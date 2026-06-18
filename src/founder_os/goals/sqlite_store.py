@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from types import TracebackType
 
@@ -83,3 +84,27 @@ class SQLiteGoalStore:
         )
         connection.commit()
         return goal
+
+    def _row_to_goal(self, row: sqlite3.Row) -> GoalRecord:
+        return GoalRecord(
+            id=row["id"],
+            title=row["title"],
+            description=row["description"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+        )
+
+    def get_goal(self, goal_id: str) -> GoalRecord | None:
+        """Return the goal with ``goal_id`` or ``None`` if it is absent."""
+        connection = self._require_connection()
+        cursor = connection.execute(
+            """
+            SELECT id, title, description, created_at, updated_at
+            FROM goals WHERE id = ?
+            """,
+            (goal_id,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return self._row_to_goal(row)
