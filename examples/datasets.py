@@ -20,6 +20,8 @@ from founder_os.models import (
     PriorityStatus,
     ProjectRecord,
     ProjectStatus,
+    ReviewRecord,
+    ReviewType,
 )
 
 
@@ -218,5 +220,80 @@ def demo_memories() -> list[MemoryRecord]:
         MemoryRecord(
             content="Support theme: founders want an at-a-glance status view.",
             tags=["feedback", "product"],
+        ),
+    ]
+
+
+def demo_reviews() -> list[ReviewRecord]:
+    """Return the demo reviews as point-in-time snapshots, oldest first.
+
+    The snapshot counts climb over time so historical insights show real growth
+    between the earliest and latest review.
+    """
+    return [
+        ReviewRecord(
+            review_date=date(2026, 2, 1),
+            review_type=ReviewType.WEEKLY,
+            notes="Early days: validating the idea and shaping the engines.",
+            active_goals=1,
+            completed_goals=0,
+            active_projects=1,
+            completed_projects=0,
+            active_priorities=2,
+            completed_priorities=0,
+            decision_count=1,
+            memory_count=2,
+        ),
+        ReviewRecord(
+            review_date=date(2026, 3, 1),
+            review_type=ReviewType.MONTHLY,
+            notes="Idea validated; expanding the roadmap.",
+            active_goals=2,
+            completed_goals=1,
+            active_projects=1,
+            completed_projects=1,
+            active_priorities=2,
+            completed_priorities=0,
+            decision_count=2,
+            memory_count=3,
+        ),
+        ReviewRecord(
+            review_date=date(2026, 5, 1),
+            review_type=ReviewType.WEEKLY,
+            notes="Engines coming together ahead of the launch.",
+            active_goals=2,
+            completed_goals=1,
+            active_projects=2,
+            completed_projects=1,
+            active_priorities=3,
+            completed_priorities=1,
+            decision_count=4,
+            memory_count=5,
+        ),
+        ReviewRecord(
+            review_date=date(2026, 6, 1),
+            review_type=ReviewType.MONTHLY,
+            notes="Launch preparation in full swing.",
+            active_goals=2,
+            completed_goals=1,
+            active_projects=2,
+            completed_projects=1,
+            active_priorities=3,
+            completed_priorities=1,
+            decision_count=5,
+            memory_count=6,
+        ),
+        ReviewRecord(
+            review_date=date(2026, 6, 15),
+            review_type=ReviewType.QUARTERLY,
+            notes="Quarter close: steady growth across the system.",
+            active_goals=2,
+            completed_goals=1,
+            active_projects=2,
+            completed_projects=1,
+            active_priorities=3,
+            completed_priorities=1,
+            decision_count=5,
+            memory_count=6,
         ),
     ]
