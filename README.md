@@ -55,6 +55,14 @@ for memories, backed by SQLite. It defines a `MemoryStore` protocol and a
 filtering, keyword search, and delete. See
 [docs/memory_engine.md](docs/memory_engine.md) for full details.
 
+### Decision engine
+
+The decision engine (`founder_os.decisions`) provides durable storage,
+retrieval, and outcome tracking for decisions, backed by SQLite. It defines a
+`DecisionStore` protocol and a `SQLiteDecisionStore` implementation supporting
+create, retrieve, list, delete, and outcome review. See
+[docs/decision_engine.md](docs/decision_engine.md) for full details.
+
 ## Installation
 
 Requires Python 3.11 or newer.
@@ -84,6 +92,15 @@ founder-os memory search "seed"
 founder-os memory delete <memory-id>
 ```
 
+Record and review decisions:
+
+```bash
+founder-os decision create "Adopt weekly planning" --decision "Plan every Monday"
+founder-os decision list
+founder-os decision show <decision-id>
+founder-os decision update-outcome <decision-id> --outcome successful
+```
+
 Use the domain models directly in Python:
 
 ```python
@@ -110,10 +127,12 @@ pytest
 
 - **Phase 1: Foundation.** Typed domain models, a CLI skeleton with a version
   command, tooling (Ruff, MyPy strict, Pytest), CI, and documentation.
-- **Phase 2 (current): Memory engine.** SQLite-backed storage and retrieval for
-  memories, with tag filtering, keyword search, and a `memory` CLI command group.
-- **Future phases.** Decision workflows, priority scoring, goal and project
-  tracking, reviews, and dashboards. These remain out of scope for now.
+- **Phase 2: Memory engine.** SQLite-backed storage and retrieval for memories,
+  with tag filtering, keyword search, and a `memory` CLI command group.
+- **Phase 3 (current): Decision engine.** SQLite-backed storage, retrieval, and
+  outcome tracking for decisions, with a `decision` CLI command group.
+- **Future phases.** Priority scoring, goal and project tracking, reviews, and
+  dashboards. These remain out of scope for now.
 
 ## License
 
