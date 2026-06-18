@@ -22,10 +22,19 @@ CREATE TABLE IF NOT EXISTS projects (
 )
 """
 
+_CREATE_GOAL_PROJECTS_TABLE = """
+CREATE TABLE IF NOT EXISTS goal_projects (
+    project_id TEXT PRIMARY KEY,
+    goal_id TEXT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+)
+"""
+
 
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create the project engine tables on ``connection`` if they do not exist."""
     connection.execute(_CREATE_PROJECTS_TABLE)
+    connection.execute(_CREATE_GOAL_PROJECTS_TABLE)
     connection.commit()
 
 
