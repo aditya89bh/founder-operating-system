@@ -163,3 +163,16 @@ class SQLiteProjectStore:
             (project_id, goal_id),
         )
         connection.commit()
+
+    def get_goal_projects(self, goal_id: str) -> list[str]:
+        """Return the identifiers of projects aligned with ``goal_id``.
+
+        The project engine stores only the alignment; callers can resolve the
+        identifiers against the project records when they need full details.
+        """
+        connection = self._require_connection()
+        cursor = connection.execute(
+            "SELECT project_id FROM goal_projects WHERE goal_id = ? ORDER BY project_id",
+            (goal_id,),
+        )
+        return [row["project_id"] for row in cursor.fetchall()]
