@@ -767,3 +767,17 @@ def status(
         memory_store.close()
         review_store.close()
     typer.echo(render_status_report(snapshot))
+
+
+insights_app = typer.Typer(
+    help="Review historical insights derived from stored review snapshots.",
+    no_args_is_help=True,
+)
+
+
+@insights_app.callback()
+def insights() -> None:
+    """Understand how the operating system has evolved across reviews."""
+
+
+app.add_typer(insights_app, name="insights")
