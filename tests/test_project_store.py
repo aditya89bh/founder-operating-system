@@ -87,3 +87,35 @@ def test_project_without_dates_defaults_to_none(store: SQLiteProjectStore) -> No
     assert fetched is not None
     assert fetched.start_date is None
     assert fetched.target_date is None
+
+
+def test_link_project_to_goal_and_retrieve(store: SQLiteProjectStore) -> None:
+    first = store.create_project(ProjectRecord(title="First project"))
+    second = store.create_project(ProjectRecord(title="Second project"))
+
+    store.link_project_to_goal(first.id, "goal-a")
+    store.link_project_to_goal(second.id, "goal-a")
+
+    assert store.get_goal_projects("goal-a") == sorted([first.id, second.id])
+
+
+def test_get_goal_projects_empty_by_default(store: SQLiteProjectStore) -> None:
+    assert store.get_goal_projects("goal-a") == []
+
+
+def test_relinking_project_moves_it_to_new_goal(store: SQLiteProjectStore) -> None:
+    project = store.create_project(ProjectRecord(title="Movable project"))
+
+    store.link_project_to_goal(project.id, "goal-a")
+    store.link_project_to_goal(project.id, "goal-b")
+
+    assert store.get_goal_projects("goal-a") == []
+    assert store.get_goal_projects("goal-b") == [project.id]
+
+
+def test_deleting_project_removes_its_goal_link(store: SQLiteProjectStore) -> None:
+    project = store.create_project(ProjectRecord(title="Temporary project"))
+    store.link_project_to_goal(project.id, "goal-a")
+
+    assert store.delete_project(project.id) is True
+    assert store.get_goal_projects("goal-a") == []
