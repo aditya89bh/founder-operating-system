@@ -77,3 +77,55 @@ def test_review_count_and_date_range(review_store: SQLiteReviewStore) -> None:
     assert insights.review_count == 3
     assert insights.oldest_review_date == date(2026, 1, 1)
     assert insights.newest_review_date == date(2026, 6, 1)
+
+
+def test_growth_is_latest_minus_earliest(review_store: SQLiteReviewStore) -> None:
+    review_store.create_review(
+        _make_review(
+            date(2026, 1, 1),
+            active_goals=1,
+            active_projects=2,
+            active_priorities=3,
+            decision_count=4,
+            memory_count=5,
+        )
+    )
+    review_store.create_review(
+        _make_review(
+            date(2026, 6, 1),
+            active_goals=5,
+            active_projects=4,
+            active_priorities=10,
+            decision_count=20,
+            memory_count=30,
+        )
+    )
+
+    insights = generate_insights(review_store)
+
+    assert insights.goal_growth == 4
+    assert insights.project_growth == 2
+    assert insights.priority_growth == 7
+    assert insights.decision_growth == 16
+    assert insights.memory_growth == 25
+
+
+def test_growth_can_be_negative(review_store: SQLiteReviewStore) -> None:
+    review_store.create_review(_make_review(date(2026, 1, 1), active_goals=10))
+    review_store.create_review(_make_review(date(2026, 6, 1), active_goals=3))
+
+    insights = generate_insights(review_store)
+
+    assert insights.goal_growth == -7
+
+
+def test_growth_ignores_insertion_order(review_store: SQLiteReviewStore) -> None:
+    # Insert the newest review first to confirm ordering is by review date.
+    review_store.create_review(_make_review(date(2026, 6, 1), decision_count=20))
+    review_store.create_review(_make_review(date(2026, 1, 1), decision_count=5))
+
+    insights = generate_insights(review_store)
+
+    assert insights.oldest_review_date == date(2026, 1, 1)
+    assert insights.newest_review_date == date(2026, 6, 1)
+    assert insights.decision_growth == 15
