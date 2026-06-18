@@ -560,3 +560,31 @@ def project_create(
     finally:
         store.close()
     typer.echo(record.id)
+
+
+def _format_project(record: ProjectRecord) -> str:
+    start = record.start_date.isoformat() if record.start_date else "-"
+    target = record.target_date.isoformat() if record.target_date else "-"
+    return (
+        f"{record.id}  [{record.status.value}]  "
+        f"start={start} target={target}  {record.title}"
+    )
+
+
+@project_app.command("list")
+def project_list(
+    database: Annotated[
+        Path, typer.Option("--db", help="Path to the SQLite database.")
+    ] = DEFAULT_PROJECT_DB_PATH,
+) -> None:
+    """List projects, newest first."""
+    store = _open_project_store(database)
+    try:
+        records = store.list_projects()
+    finally:
+        store.close()
+    if not records:
+        typer.echo("No projects found.")
+        return
+    for record in records:
+        typer.echo(_format_project(record))
