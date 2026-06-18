@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from types import TracebackType
 
+from founder_os.models import MemoryRecord
+
 _CREATE_MEMORIES_TABLE = """
 CREATE TABLE IF NOT EXISTS memories (
     id TEXT PRIMARY KEY,
@@ -55,3 +57,18 @@ class SQLiteMemoryStore:
         traceback: TracebackType | None,
     ) -> None:
         self.close()
+
+    def _require_connection(self) -> sqlite3.Connection:
+        if self._connection is None:
+            raise RuntimeError("Store is not connected; call connect() first.")
+        return self._connection
+
+    def add_memory(self, memory: MemoryRecord) -> MemoryRecord:
+        """Persist ``memory`` and return the stored record."""
+        connection = self._require_connection()
+        connection.execute(
+            "INSERT INTO memories (id, content, created_at) VALUES (?, ?, ?)",
+            (memory.id, memory.content, memory.created_at.isoformat()),
+        )
+        connection.commit()
+        return memory
