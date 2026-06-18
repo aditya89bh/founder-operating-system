@@ -100,3 +100,10 @@ class SQLiteMemoryStore:
             "SELECT id, content, created_at FROM memories ORDER BY created_at DESC, id"
         )
         return [self._row_to_memory(row) for row in cursor.fetchall()]
+
+    def delete_memory(self, memory_id: str) -> bool:
+        """Delete the memory with ``memory_id``; return ``True`` if a row was removed."""
+        connection = self._require_connection()
+        cursor = connection.execute("DELETE FROM memories WHERE id = ?", (memory_id,))
+        connection.commit()
+        return cursor.rowcount > 0
