@@ -9,6 +9,7 @@ from typing import Annotated
 import typer
 
 from founder_os.decisions.sqlite_store import SQLiteDecisionStore
+from founder_os.goals.sqlite_store import SQLiteGoalStore
 from founder_os.memory.sqlite_store import SQLiteMemoryStore
 from founder_os.models import DecisionOutcome, DecisionRecord, MemoryRecord, PriorityRecord
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
@@ -17,6 +18,7 @@ from founder_os.version import __version__
 DEFAULT_DB_PATH = Path.home() / ".founder-os" / "memory.db"
 DEFAULT_DECISION_DB_PATH = Path.home() / ".founder-os" / "decisions.db"
 DEFAULT_PRIORITY_DB_PATH = Path.home() / ".founder-os" / "priorities.db"
+DEFAULT_GOAL_DB_PATH = Path.home() / ".founder-os" / "goals.db"
 
 
 def _open_store(database: Path) -> SQLiteMemoryStore:
@@ -39,6 +41,14 @@ def _open_priority_store(database: Path) -> SQLitePriorityStore:
     """Open a connected SQLite priority store at ``database``."""
     database.parent.mkdir(parents=True, exist_ok=True)
     store = SQLitePriorityStore(database)
+    store.connect()
+    return store
+
+
+def _open_goal_store(database: Path) -> SQLiteGoalStore:
+    """Open a connected SQLite goal store at ``database``."""
+    database.parent.mkdir(parents=True, exist_ok=True)
+    store = SQLiteGoalStore(database)
     store.connect()
     return store
 
@@ -385,3 +395,17 @@ def priority_list(
         return
     for record in records:
         typer.echo(_format_priority(record))
+
+
+goal_app = typer.Typer(
+    help="Define goals and align priorities to them.",
+    no_args_is_help=True,
+)
+
+
+@goal_app.callback()
+def goal() -> None:
+    """Manage long-term goals and their aligned priorities."""
+
+
+app.add_typer(goal_app, name="goal")
