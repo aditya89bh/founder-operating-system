@@ -17,6 +17,7 @@ from founder_os.operating_loop.models import FounderSnapshot
 from founder_os.operating_loop.service import build_founder_snapshot
 from founder_os.priorities.store import PriorityStore
 from founder_os.projects.store import ProjectStore
+from founder_os.reporting.models import FounderReport
 from founder_os.reviews.store import ReviewStore
 
 
@@ -43,3 +44,25 @@ def _collect_snapshot(
 def _collect_insights(review_store: ReviewStore) -> HistoricalInsights:
     """Build the historical insights for a report from stored review snapshots."""
     return generate_insights(review_store)
+
+
+def build_founder_report(
+    *,
+    goal_store: GoalStore,
+    project_store: ProjectStore,
+    priority_store: PriorityStore,
+    decision_store: DecisionStore,
+    memory_store: MemoryStore,
+    review_store: ReviewStore,
+) -> FounderReport:
+    """Assemble a :class:`FounderReport` from the live snapshot and history."""
+    snapshot = _collect_snapshot(
+        goal_store=goal_store,
+        project_store=project_store,
+        priority_store=priority_store,
+        decision_store=decision_store,
+        memory_store=memory_store,
+        review_store=review_store,
+    )
+    insights = _collect_insights(review_store)
+    return FounderReport(snapshot=snapshot, insights=insights)
