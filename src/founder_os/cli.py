@@ -30,6 +30,9 @@ from founder_os.operating_loop.report import render_status_report
 from founder_os.operating_loop.service import build_founder_snapshot
 from founder_os.priorities.sqlite_store import SQLitePriorityStore
 from founder_os.projects.sqlite_store import SQLiteProjectStore
+from founder_os.reporting.markdown import render_markdown
+from founder_os.reporting.models import FounderReport
+from founder_os.reporting.service import build_founder_report
 from founder_os.reviews.snapshot import generate_snapshot
 from founder_os.reviews.sqlite_store import SQLiteReviewStore
 from founder_os.version import __version__
@@ -812,3 +815,69 @@ def report() -> None:
 
 
 app.add_typer(report_app, name="report")
+
+
+def _build_report(
+    *,
+    memory_db: Path,
+    decision_db: Path,
+    priority_db: Path,
+    goal_db: Path,
+    project_db: Path,
+    review_db: Path,
+) -> FounderReport:
+    goal_store = _open_goal_store(goal_db)
+    project_store = _open_project_store(project_db)
+    priority_store = _open_priority_store(priority_db)
+    decision_store = _open_decision_store(decision_db)
+    memory_store = _open_store(memory_db)
+    review_store = _open_review_store(review_db)
+    try:
+        return build_founder_report(
+            goal_store=goal_store,
+            project_store=project_store,
+            priority_store=priority_store,
+            decision_store=decision_store,
+            memory_store=memory_store,
+            review_store=review_store,
+        )
+    finally:
+        goal_store.close()
+        project_store.close()
+        priority_store.close()
+        decision_store.close()
+        memory_store.close()
+        review_store.close()
+
+
+@report_app.command("markdown")
+def report_markdown(
+    memory_db: Annotated[
+        Path, typer.Option("--memory-db", help="Path to the memory database.")
+    ] = DEFAULT_DB_PATH,
+    decision_db: Annotated[
+        Path, typer.Option("--decision-db", help="Path to the decision database.")
+    ] = DEFAULT_DECISION_DB_PATH,
+    priority_db: Annotated[
+        Path, typer.Option("--priority-db", help="Path to the priority database.")
+    ] = DEFAULT_PRIORITY_DB_PATH,
+    goal_db: Annotated[
+        Path, typer.Option("--goal-db", help="Path to the goal database.")
+    ] = DEFAULT_GOAL_DB_PATH,
+    project_db: Annotated[
+        Path, typer.Option("--project-db", help="Path to the project database.")
+    ] = DEFAULT_PROJECT_DB_PATH,
+    review_db: Annotated[
+        Path, typer.Option("--review-db", help="Path to the review database.")
+    ] = DEFAULT_REVIEW_DB_PATH,
+) -> None:
+    """Export the founder report as Markdown."""
+    founder_report = _build_report(
+        memory_db=memory_db,
+        decision_db=decision_db,
+        priority_db=priority_db,
+        goal_db=goal_db,
+        project_db=project_db,
+        review_db=review_db,
+    )
+    typer.echo(render_markdown(founder_report))
