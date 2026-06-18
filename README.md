@@ -302,6 +302,61 @@ mypy src
 pytest
 ```
 
+## Demo walkthrough
+
+The fastest way to understand the system is to run the built-in demo:
+
+```bash
+founder-os demo
+```
+
+It models running a company as a continuous loop — **Observe → Remember → Decide
+→ Prioritize → Execute → Review → Learn → Report** — and exercises every engine
+in that order against a realistic dataset.
+
+![Founder operating loop](docs/images/workflow.png)
+
+The command prints three sections built entirely from the existing engines:
+
+1. **Operating loop status** — active goals, projects, and priorities; recent
+   decisions and memories; the latest review date; and health indicators.
+2. **Historical insights** — how many reviews exist, their date range, and the
+   growth of each entity from the earliest to the latest review.
+3. **Founder report** — the combined, founder-facing report (also available as
+   Markdown or JSON via `founder-os report`).
+
+Abbreviated output:
+
+```text
+ 1. Operating loop status
+Founder Operating System status
+  Active goals:      2
+  Active projects:   2
+  Active priorities: 3
+  Recent decisions:  5
+  Recent memories:   5
+  Latest review:     2026-06-15
+
+ 2. Historical insights
+Historical insights
+  Reviews recorded: 5
+  Review range:     2026-02-01 -> 2026-06-15
+  Growth since earliest review:
+    Goals:      +1
+    Projects:   +1
+    ...
+
+ 3. Founder report
+# Founder Report
+## Current State
+- Active goals: 2
+...
+```
+
+The same data is available programmatically through the `examples/` package and
+its [sample report](examples/sample_report.md). See
+[docs/examples.md](docs/examples.md) for the full set of scenarios.
+
 ## Getting started walkthrough
 
 This walkthrough takes you from an empty system to a full founder report using
